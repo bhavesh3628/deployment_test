@@ -102,14 +102,12 @@ export class AuctionService {
     let newRoundDTO: createRoundDTO = {
       auctionId: auction.id,
       poolPlayers: auction.poolPlayers,
+      number:auction.rounds.length+1
+      
     };
     let newRound = new Round(newRoundDTO);
     newRound.status = "started";
     auction.rounds = [...auction.rounds, newRound];
-    let currentRound = auction.rounds.find(
-      (round) => round.status === "started"
-    );
-    console.log("in startRound");
     return this.startSession(newRound);
   }
 
@@ -157,6 +155,34 @@ export class AuctionService {
       throw new Error("auction not found");
     }
     return auction;
+  }
+
+  bid(bidDTO: CreateBidDTO){
+    let auction = this.getAuction(bidDTO.auctionId)
+    if(auction.status === "started"){
+      let round = auction.rounds.find((round) => round.status == "started");
+      if(round){
+        let currrentBiddingSession = round.sessions.find(
+          (session) => session.id === bidDTO.biddingSessionId
+        );
+        if(currrentBiddingSession){
+          let newBid = new Bid(bidDTO);
+          newBid.status = "accepted"
+          let player = auction.poolPlayers.find(
+            (player) => player.id === currrentBiddingSession.playerId
+          );
+          if(player){
+            if (player.roundBasePrice[round.number] < newBid.amount) {
+              newBid.status = "rejected";
+              return {newBidId: newBid.id, newBidStatus:newBid.status}
+            } else {
+              currrentBiddingSession.bids = [...currrentBiddingSession.bids, newBid];
+              return {newBidId:newBid.id,newBidStatus:newBid.status} // returning bid if it is added
+            }
+          } throw new Error("Player does not exist in session!!")
+        } throw new Error("Session does not exist!!!")
+      } throw new Error("Round not found!!!")
+    } throw new Error("Auction is not started yet")
   }
 }
 

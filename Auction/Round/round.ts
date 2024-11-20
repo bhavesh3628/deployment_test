@@ -6,6 +6,7 @@ import { createRoundDTO } from "./types";
 export class Round {
   public readonly id: number;
   public auctionId: number;
+  public number: number = 0
   public static counter: number = 0;
   public poolPlayers: ApprovedPlayer[];
   public status: AuctionStatus

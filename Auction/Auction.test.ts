@@ -171,108 +171,106 @@ describe("Auction Service", () => {
   }
 
   });
-//   it("should be able to take bids", () => {
-//     let franchises = franchiseService.getAll();
-//     expect(franchises).toHaveLength(0);
-//     let franchise: CreateFranchiseDTO = {
-//       name: "MI",
-//       city: "Mumbai",
-//     };
-//     let newFranchise = franchiseService.addOne(franchise);
-//     franchises = franchiseService.getAll();
-//     expect(franchises).toHaveLength(1);
-//     let thala: CreatePlayerDTO = {
-//       dob: 2002,
-//       name: "Mahi",
-//       nationality: "indian",
-//       skills: {
-//         batter: 0,
-//         bowler: 0,
-//         allRounder: 0,
-//         wicketKeeper: 1,
-//       },
-//     };
-//     let newPlayer = playerService.addOne(thala);
+  it("should be able to take bids", () => {
+    let franchises = franchiseService.getAll();
+    expect(franchises).toHaveLength(0);
+    let franchise: CreateFranchiseDTO = {
+      name: "MI",
+      city: "Mumbai",
+    };
+    let newFranchise = franchiseService.addOne(franchise);
+    franchises = franchiseService.getAll();
+    expect(franchises).toHaveLength(1);
+    let thala: CreatePlayerDTO = {
+      dob: 2002,
+      name: "Mahi",
+      nationality: "indian",
+      skills: {
+        batter: 0,
+        bowler: 0,
+        allRounder: 0,
+        wicketKeeper: 1,
+      },
+    };
+    let newPlayer = playerService.addOne(thala);
 
-//     let iplDTO = {
-//       name: "IPL",
-//     };
-//     let league = leagueService.addOne(iplDTO);
+    let iplDTO = {
+      name: "IPL",
+    };
+    let league = leagueService.addOne(iplDTO);
 
-//     let editionDTO: CreateEditionDTO = {
-//       name: "TATA",
-//       leagueId: league.id,
-//     };
-//     let edition = editionService.addOne(editionDTO);
+    let editionDTO: CreateEditionDTO = {
+      name: "TATA",
+      leagueId: league.id,
+    };
+    let edition = editionService.addOne(editionDTO);
 
-//     let auctionDTO: CreateAuctionDTO = {
-//       editionId: edition.id,
-//       purse: 1000,
-//       numberOfRounds: 3,
-//       coolDownPeriod: 300, // in seconds
-//       plannedStartDate: new Date().toDateString(),
-//     };
-//     let auction = auctionService.addOne(auctionDTO);
+    let auctionDTO: CreateAuctionDTO = {
+      editionId: edition.id,
+      purse: 1000,
+      numberOfRounds: 3,
+      coolDownPeriod: 300, // in seconds
+      plannedStartDate: new Date().toDateString(),
+    };
+    let auction = auctionService.addOne(auctionDTO);
 
-//     let applications = applicationService.getAll();
-//     expect(applications).toHaveLength(0);
-//     let application: CreatePlayerApplicationDTO = {
-//       playerId: newPlayer.id,
-//       auctionId: auction.id,
-//       roundBasePrice: { 1: 100, 2: 40, 3: 10 },
-//     };
+    let applications = applicationService.getAll();
+    expect(applications).toHaveLength(0);
+    let application: CreatePlayerApplicationDTO = {
+      playerId: newPlayer.id,
+      auctionId: auction.id,
+      roundBasePrice: { 1: 100, 2: 40, 3: 10 },
+    };
 
-//     let newApplication = applicationService.addOne(application);
-//     applications = applicationService.getAll();
+    let newApplication = applicationService.addOne(application);
+    applications = applicationService.getAll();
 
-//     expect(applications).toHaveLength(1);
-//     let currentApplication = applications.find(
-//       (application) => application.id === newApplication.id
-//     );
-//     expect(currentApplication?.playerId).toBe(newPlayer.id);
-//     let applicationMeta: PlayerApplicationMeta= {
-//       authorizedOn: new Date().toDateString(),
-//       authorizedBy: auction.id, // can be a league owner
-//       comment: "approved",
-//     };
-//     if (!currentApplication) {
-//       throw new Error("application not found");
-//     }
-//     let processedApplication = applicationService.process(
-//       currentApplication,
-//       applicationMeta,
-//       "accepted",
-//       auctionService
-//     );
-//     expect(processedApplication?.status).toBe("accepted");
-//     let poolPlayer = auction.poolPlayers.find(
-//       (player) => player.playerId === processedApplication?.playerId
-//     );
-//     expect(poolPlayer?.playerId).toBe(application.playerId);
-//     let toRegisterFranchise:CreateFranchiseApplicationDTO = {
-//       franchiseId: newFranchise.id,
-//       auctionId: auction.id,
-//       purse: 100,
-//       status:"pending"
-//     };
-//     let registeredFranchise = franchiseApplicationService.addOne(toRegisterFranchise)
-//     expect(registeredFranchise?.purse).toBe(toRegisterFranchise.purse);
-//     if (registeredFranchise) {
-//     let newBiddingSession = auctionService.start(auction.id);
+    expect(applications).toHaveLength(1);
+    let currentApplication = applications.find(
+      (application) => application.id === newApplication.id
+    );
+    expect(currentApplication?.playerId).toBe(newPlayer.id);
+    let applicationMeta: PlayerApplicationMeta= {
+      authorizedOn: new Date().toDateString(),
+      authorizedBy: auction.id, // can be a league owner
+      comment: "approved",
+    };
+    if (!currentApplication) {
+      throw new Error("application not found");
+    }
+    let processedApplication = applicationService.process(
+      currentApplication,
+      applicationMeta,
+      "accepted",
+      auctionService
+    );
+    expect(processedApplication?.status).toBe("accepted");
+    let poolPlayer = auction.poolPlayers.find(
+      (player) => player.playerId === processedApplication?.playerId
+    );
+    expect(poolPlayer?.playerId).toBe(application.playerId);
+    let toRegisterFranchise:CreateFranchiseApplicationDTO = {
+      franchiseId: newFranchise.id,
+      auctionId: auction.id,
+      purse: 100,
+      status:"pending"
+    };
+    let registeredFranchise = franchiseApplicationService.addOne(toRegisterFranchise)
+    expect(registeredFranchise?.purse).toBe(toRegisterFranchise.purse);
+    if (registeredFranchise) {
+    let newBiddingSession = auctionService.start(auction.id);
+      let thalaBid: CreateBidDTO = {
+        franchiseId: registeredFranchise.franchiseId,
+        amount: 100,
+        auctionId: auction.id,
+        biddingSessionId: newBiddingSession.id,
+        createdAt: Date.now()
+      }
 
-//     let newBidDTO: CreateBidDTO = {
-//       franchiseId: registeredFranchise?.franchiseId,
-//       biddingSessionId:newBiddingSession.id,
-//       amount: 100,
-//       auctionId: registeredFranchise.auctionId,
-//       createdAt: Date.now(),
-//     };
 
-//     let newBid = auctionService.bid(newBidDTO)
-//     let searchedBid = newBiddingSession.bids.find((bid)=>bid.amount === newBid.amount)
-//     console.log(searchedBid);
-    
-//     expect(searchedBid?.amount).toBe(100)
+    let {newBidId,newBidStatus} = auctionService.bid(thalaBid)
+    let searchedBid = newBiddingSession.bids.find((bid)=>bid.id === newBidId)
+    expect(searchedBid?.amount).toBe(100)
     
 //   }
 
@@ -464,7 +462,7 @@ describe("Auction Service", () => {
 //     expect(winningBid?.amount).toBe(120)
 //     expect(auction.registeredFranchises[1].team[0]).toBe(newBiddingSession.playerId)
     
-//   }
+  }
 
-//   });
+  });
 });
