@@ -1,6 +1,9 @@
 import { FranchiseService } from "./Franchise";
 import { CreateFranchiseDTO, EditFranchiseDTO } from "../Franchise/Types";
-import { PlayerApplicationMeta, EditPlayerApplicationDTO } from "../Application/Player/types";
+import {
+  PlayerApplicationMeta,
+  EditPlayerApplicationDTO,
+} from "../Application/Player/types";
 import { AuctionService } from "../Auction/Auction";
 import { EditionService } from "../Edition/editionService";
 import { LeagueService } from "../League/leagueService";
@@ -9,21 +12,21 @@ import { CreateAuctionDTO } from "../Auction/Types";
 import { RegisteredFranchise } from "../Auction/RegisteredFranchise/RegisteredFranchise";
 import { CreateRegisteredFranchiseDTO } from "../Auction/RegisteredFranchise/types";
 import { FranchiseApplicationService } from "../Application/Franchise/application";
+import { CreateFranchiseApplicationDTO } from "../Application/Franchise/types";
 
 describe("franchise", () => {
   let franchiseService: FranchiseService;
   let auctionService: AuctionService;
   let editionService: EditionService;
   let leagueService: LeagueService;
-  let franchiseApplicationService : FranchiseApplicationService;
+  let franchiseApplicationService: FranchiseApplicationService;
 
   beforeEach(() => {
     franchiseService = new FranchiseService();
-    auctionService = new AuctionService()
-    editionService = new EditionService()
-    leagueService = new LeagueService()
-    franchiseApplicationService = new FranchiseApplicationService()
-    
+    auctionService = new AuctionService();
+    editionService = new EditionService();
+    leagueService = new LeagueService();
+    franchiseApplicationService = new FranchiseApplicationService();
   });
 
   it("should have no franchise at the start", () => {
@@ -82,7 +85,7 @@ describe("franchise", () => {
     expect(franchises).toHaveLength(0);
   });
 
-  it("should register for an auction",()=>{
+  it("should register for an auction", () => {
     let franchises = franchiseService.getAll();
     expect(franchises).toHaveLength(0);
     let franchise: CreateFranchiseDTO = {
@@ -112,20 +115,30 @@ describe("franchise", () => {
       plannedStartDate: new Date().toDateString(),
     };
 
-    let auction = auctionService.addOne(auctionDTO)
-    let toRegisterFranchise:CreateRegisteredFranchiseDTO = {
+    let auction = auctionService.addOne(auctionDTO);
+    let franchiseApplicationDTO: CreateFranchiseApplicationDTO = {
       franchiseId: newFranchise.id,
-      auctionId:auction.id,
-      purse: 100
-    }
+      auctionId: auction.id,
+      purse: 100,
+      status: "pending",
+    };
     let applicationMeta: PlayerApplicationMeta = {
       authorizedOn: new Date().toDateString(),
-      authorizedBy: auction.id ,// can be a league owner
-      comment: "approved"
-    }
-    let franchiseApplication=franchiseApplicationService.addOne(toRegisterFranchise)
-    franchiseApplicationService.process(franchiseApplication,applicationMeta,"accepted",auctionService)
-    let registeredFranchise = auction.registeredFranchises.find((franchise)=> franchise.franchiseId === newFranchise.id)
-    expect(registeredFranchise?.purse).toBe(toRegisterFranchise.purse)
-  })
+      authorizedBy: auction.id, // can be a league owner
+      comment: "approved",
+    };
+    let franchiseApplication = franchiseApplicationService.addOne(
+      franchiseApplicationDTO
+    );
+    franchiseApplicationService.process(
+      franchiseApplication,
+      applicationMeta,
+      "accepted",
+      auctionService
+    );
+    let registeredFranchise = auction.registeredFranchises.find(
+      (franchise) => franchise.franchiseId === newFranchise.id
+    );
+    expect(registeredFranchise?.purse).toBe(franchiseApplicationDTO.purse);
+  });
 });

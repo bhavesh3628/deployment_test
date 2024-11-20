@@ -87,12 +87,14 @@ export class AuctionService {
     application.applicationMeta = meta;
     application.status = status;
     if (application.status === "accepted") {
-      let registeredFranchise: CreateRegisteredFranchiseDTO = {
+      let registeredFranchiseDTO: CreateRegisteredFranchiseDTO = {
         franchiseId: application.franchiseId,
         auctionId: application.auctionId,
         purse: application.purse,
       };
-      let franchiseApplication = new RegisteredFranchise(registeredFranchise);
+      let franchiseApplication = new RegisteredFranchise(
+        registeredFranchiseDTO
+      );
       this.addToRegisteredFranchise(franchiseApplication);
     }
     return application;
@@ -101,9 +103,10 @@ export class AuctionService {
   private startRound(auction: Auction) {
     let newRoundDTO: createRoundDTO = {
       auctionId: auction.id,
-      poolPlayers: auction.poolPlayers,
-      number:auction.rounds.length+1
-      
+      poolPlayers: auction.poolPlayers.filter(
+        (player) => player.status === "unsold"
+      ),
+      number: auction.rounds.length + 1,
     };
     let newRound = new Round(newRoundDTO);
     newRound.status = "started";
@@ -111,10 +114,24 @@ export class AuctionService {
     return this.startSession(newRound);
   }
 
+  stopRound(round: Round) {
+    round.status = "concluded";
+    let auction = this.getAuction(round.auctionId);
+    if (auction.numberOfRounds === auction.rounds.length)
+      this.stopAuction(auction.id);
+    return round;
+  }
+
+  stopAuction(auctionId: number) {
+    let auction = this.getAuction(auctionId);
+    auction.status = "concluded";
+    return auction.poolPlayers;
+  }
+
   startSession(round: Round) {
     console.log("in startSession");
     let playerIndex = this.getRandomPlayerId(round);
-    let player = round.poolPlayers[playerIndex!];
+    let player = round.poolPlayers[playerIndex];
     let newBiddingSessionDTO: createBiddingSessionDTO = {
       playerId: player.id, //duplicates
       auctionId: this.getAuction(round.auctionId).id,
@@ -127,18 +144,52 @@ export class AuctionService {
     return newSession;
   }
 
-  private getRandomPlayerId(round: Round) {
+  stopSession(biddingSession: BiddingSession) {
+    let auction = this.getAuction(biddingSession.auctionId);
+    let round = auction.rounds.find((round) => round.status === "started");
+    let poolPlayer = this.getPoolPlayer(auction.id, biddingSession.playerId);
+
+    if (round) {
+      let roundPlayer = round.poolPlayers.find(
+        (player) => player.id === biddingSession.playerId
+      );
+      biddingSession.status = "completed";
+      if (biddingSession.bids.length > 0) {
+        poolPlayer.status = "sold";
+        if (roundPlayer) {
+          roundPlayer.status = "sold";
+        }
+
+        let lastBid = biddingSession.bids[biddingSession.bids.length - 1];
+        let winningFranchise = this.getRegisteredFranchise(
+          auction.id,
+          lastBid.franchiseId
+        );
+
+        winningFranchise.purse -= lastBid.amount; //wrap into franchise manipulation functions
+        winningFranchise.team = [
+          ...winningFranchise.team,
+          biddingSession.playerId,
+        ];
+        if (round.sessions.length === round.poolPlayers.length) {
+          this.stopRound(round);
+        } else return this.startSession(round);
+      }
+    }
+  }
+
+  private getRandomPlayerId(round: Round): number {
     let randomId: number;
-    if (round.poolPlayers.length === 0) throw new Error("no players in pool");
-    else if (round.poolPlayers.length === 1) randomId = 0;
-    else 
+    if (round.poolPlayers.length === 0) return -1;
+    else if (round.poolPlayers.length === 1) return 0;
+    else
       randomId = Math.floor(Math.random() * (round.poolPlayers.length - 1) + 1);
 
     if (!round.playerOrder.includes(randomId)) {
       round.playerOrder = [...round.playerOrder, randomId];
       console.log(round.playerOrder);
       return randomId;
-    } else this.getRandomPlayerId(round);
+    } else return this.getRandomPlayerId(round);
   }
 
   start(auctionId: number) {
@@ -156,33 +207,94 @@ export class AuctionService {
     }
     return auction;
   }
+  getWinningBid(biddingSessionId: number) {
+    let auction = this.auctions.find((auction) =>
+      auction.rounds.find((round) =>
+        round.sessions.find((session) => session.id === biddingSessionId)
+      )
+    );
+    if (!auction) throw new Error("auction not found");
+    let round = auction.rounds.find((round) =>
+      round.sessions.find((session) => session.id === biddingSessionId)
+    );
+    if (!round) throw new Error("round not found");
+    let biddingSession = round.sessions.find(
+      (session) => session.id === biddingSessionId
+    );
+    if (!biddingSession) throw new Error("bidding session not found");
+    let lastBid = biddingSession.bids[biddingSession.bids.length - 1];
+    return lastBid;
+  }
+  getRegisteredFranchise(auctionId: number, franchiseId: number) {
+    let auction = this.getAuction(auctionId);
 
-  bid(bidDTO: CreateBidDTO){
-    let auction = this.getAuction(bidDTO.auctionId)
-    if(auction.status === "started"){
-      let round = auction.rounds.find((round) => round.status == "started");
-      if(round){
-        let currrentBiddingSession = round.sessions.find(
+    let registeredFranchise = auction.registeredFranchises.find(
+      (franchise) => franchise.franchiseId === franchiseId
+    );
+    if (!registeredFranchise) throw new Error("franchise is not registered");
+    return registeredFranchise;
+  }
+  getPoolPlayer(auctionId: number, playerId: number) {
+    let auction = this.getAuction(auctionId);
+    let poolPlayer = auction.poolPlayers.find(
+      (poolPlayer) => poolPlayer.playerId === playerId
+    );
+    if (!poolPlayer) throw new Error("pool player is not registered");
+    return poolPlayer;
+  }
+
+  bid(bidDTO: CreateBidDTO) {
+    let auction = this.getAuction(bidDTO.auctionId);
+    if (auction.status === "started") {
+      let round = auction.rounds.find((round) => round.status === "started");
+      if (round) {
+        let currentBiddingSession = round.sessions.find(
           (session) => session.id === bidDTO.biddingSessionId
         );
-        if(currrentBiddingSession){
+        if (currentBiddingSession) {
           let newBid = new Bid(bidDTO);
-          newBid.status = "accepted"
           let player = auction.poolPlayers.find(
-            (player) => player.id === currrentBiddingSession.playerId
+            (player) => player.id === currentBiddingSession.playerId
           );
-          if(player){
-            if (player.roundBasePrice[round.number] < newBid.amount) {
+          if (player) {
+            if (player.roundBasePrice[round.number] > newBid.amount) {
               newBid.status = "rejected";
-              return {newBidId: newBid.id, newBidStatus:newBid.status}
+              console.log(newBid);
+              return newBid;
             } else {
-              currrentBiddingSession.bids = [...currrentBiddingSession.bids, newBid];
-              return {newBidId:newBid.id,newBidStatus:newBid.status} // returning bid if it is added
+              if (
+                //wrap validation
+                currentBiddingSession.bids.length !== 0 &&
+                currentBiddingSession.bids[
+                  currentBiddingSession.bids.length - 1
+                ].amount < newBid.amount
+              ) {
+                newBid.status = "accepted";
+                currentBiddingSession.bids = [
+                  ...currentBiddingSession.bids,
+                  newBid,
+                ];
+                return newBid; // returning bid if it is added
+              } else if (currentBiddingSession.bids.length === 0) {
+                newBid.status = "accepted";
+                currentBiddingSession.bids = [
+                  ...currentBiddingSession.bids,
+                  newBid,
+                ];
+                return newBid;
+              } else {
+                newBid.status = "rejected";
+                return newBid;
+              }
             }
-          } throw new Error("Player does not exist in session!!")
-        } throw new Error("Session does not exist!!!")
-      } throw new Error("Round not found!!!")
-    } throw new Error("Auction is not started yet")
+          }
+          throw new Error("Player does not exist in session!!");
+        }
+        throw new Error("Session does not exist!!!");
+      }
+      throw new Error("Round not found!!!");
+    }
+    throw new Error("Auction is not started yet");
   }
 }
 

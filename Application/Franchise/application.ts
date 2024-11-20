@@ -3,7 +3,12 @@ import { RegisteredFranchise } from "../../Auction/RegisteredFranchise/Registere
 import { CreateRegisteredFranchiseDTO } from "../../Auction/RegisteredFranchise/types";
 import { ApprovedPlayer, PlayerService } from "../../Players/playerService";
 import { CreateApprovedPlayerDTO } from "../../Players/Types";
-import { FranchiseApplicationMeta, CreateFranchiseApplicationDTO, EditFranchiseApplicationDTO, Status } from "./types";
+import {
+  FranchiseApplicationMeta,
+  CreateFranchiseApplicationDTO,
+  EditFranchiseApplicationDTO,
+  Status,
+} from "./types";
 
 export class FranchiseApplicationService {
   private applications: FranchiseApplication[];
@@ -26,14 +31,16 @@ export class FranchiseApplicationService {
       let newApplication = new FranchiseApplication(application);
       this.applications = [...this.applications, newApplication];
       return newApplication;
-      
     }
     throw new Error(
       "Application already exist for the auction, please edit it"
     );
   }
 
-  editOne(applicationId: number, editApplicationDTO: EditFranchiseApplicationDTO) {
+  editOne(
+    applicationId: number,
+    editApplicationDTO: EditFranchiseApplicationDTO
+  ) {
     this.applications = this.applications.map((currentApplication) =>
       currentApplication.id === applicationId
         ? { ...currentApplication, ...editApplicationDTO }
@@ -52,20 +59,27 @@ export class FranchiseApplicationService {
     ));
   }
 
-  process(application:FranchiseApplication,meta:FranchiseApplicationMeta,status:Status,auctionService:AuctionService){
-    application.applicationMeta = meta
-    application.status = status
-    if(application.status === "accepted"){
-      let approvedFranchiseDTO: CreateRegisteredFranchiseDTO={
+  process(
+    application: FranchiseApplication,
+    meta: FranchiseApplicationMeta,
+    status: Status,
+    auctionService: AuctionService
+  ) {
+    application.applicationMeta = meta;
+    application.status = status;
+    if (application.status === "accepted") {
+      let approvedFranchiseDTO: CreateRegisteredFranchiseDTO = {
         franchiseId: application.franchiseId,
-        auctionId:application.auctionId,
-        purse:application.purse
-        }
-      let approvedFranchise = new RegisteredFranchise(approvedFranchiseDTO)
-      auctionService.addToRegisteredFranchise(approvedFranchise)
-      return application
-    }else{
-      console.log("please review your application according to rules of auction")
+        auctionId: application.auctionId,
+        purse: application.purse,
+      };
+      let approvedFranchise = new RegisteredFranchise(approvedFranchiseDTO);
+      auctionService.addToRegisteredFranchise(approvedFranchise);
+      return application;
+    } else {
+      console.log(
+        "please review your application according to rules of auction"
+      );
     }
   }
 }
@@ -77,8 +91,7 @@ export class FranchiseApplication {
   public readonly auctionId: number;
   public status: Status;
   public purse: number;
-  public applicationMeta?: FranchiseApplicationMeta
-  
+  public applicationMeta?: FranchiseApplicationMeta;
 
   constructor(application: CreateFranchiseApplicationDTO) {
     FranchiseApplication.counter += 1;

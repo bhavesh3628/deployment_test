@@ -1,7 +1,12 @@
 import { Auction, AuctionService } from "../../Auction/Auction";
 import { ApprovedPlayer, PlayerService } from "../../Players/playerService";
 import { CreateApprovedPlayerDTO } from "../../Players/Types";
-import { PlayerApplicationMeta, CreatePlayerApplicationDTO, EditPlayerApplicationDTO, Status } from "./types";
+import {
+  PlayerApplicationMeta,
+  CreatePlayerApplicationDTO,
+  EditPlayerApplicationDTO,
+  Status,
+} from "./types";
 
 export class PlayerApplicationService {
   private applications: PlayerApplication[];
@@ -49,21 +54,28 @@ export class PlayerApplicationService {
     ));
   }
 
-  process(application:PlayerApplication,meta:PlayerApplicationMeta,status:Status,auctionService:AuctionService){
-    application.applicationMeta = meta
-    application.status = status
-    if(application.status === "accepted"){
-      let approvedPlayerDTO: CreateApprovedPlayerDTO={
+  process(
+    application: PlayerApplication,
+    meta: PlayerApplicationMeta,
+    status: Status,
+    auctionService: AuctionService
+  ) {
+    application.applicationMeta = meta;
+    application.status = status;
+    if (application.status === "accepted") {
+      let approvedPlayerDTO: CreateApprovedPlayerDTO = {
         playerId: application.playerId,
-        auctionId:application.auctionId,
-        roundBasePrice:application.roundBasePrice
-        
-      }
-      let approvedPlayer = new ApprovedPlayer(approvedPlayerDTO)
-      auctionService.addToPlayerPool(approvedPlayer)
-      return application
-    }else{
-      console.log("please review your application according to rules of auction")
+        auctionId: application.auctionId,
+        roundBasePrice: application.roundBasePrice,
+      };
+      let approvedPlayer = new ApprovedPlayer(approvedPlayerDTO);
+      auctionService.addToPlayerPool(approvedPlayer);
+      return application;
+    } else {
+      console.log(
+        "please review your application according to rules of auction"
+      );
+      return application;
     }
   }
 }
@@ -75,7 +87,7 @@ export class PlayerApplication {
   public readonly auctionId: number;
   public status: Status;
   public roundBasePrice: { [key: number]: number };
-  public applicationMeta?: PlayerApplicationMeta
+  public applicationMeta?: PlayerApplicationMeta;
 
   constructor(application: CreatePlayerApplicationDTO) {
     PlayerApplication.counter += 1;
