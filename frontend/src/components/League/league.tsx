@@ -7,30 +7,43 @@ import {
 import { Card } from "@/components/ui/card";
 import AddLeagueForm from "./addForm";
 import { useState } from "react";
-import { LeagueListCards } from "./LeagueCardList";
+import { LeagueListCards, LeagueTable } from "./LeagueCardList";
+import { Button } from "../ui/button";
 
 export type League = {
   name: string;
 };
 
 function League() {
-  let [leagues, setLeague] = useState<string[]>([]);
+  const [leagues, setLeague] = useState<League[]>([]);
+  const [isPopOverOpen, setIsPopOverOpen] = useState(false);
 
-  const handleAddLeague = (newleague: string) => {
+  const handleAddLeague = (newleague: League) => {
     setLeague([...leagues, newleague]);
+    setIsPopOverOpen(false);
   };
 
   return (
     <>
-      <Popover>
-        <PopoverTrigger>Add League</PopoverTrigger>
-        <PopoverContent>
-          <Card>
-            <AddLeagueForm /*handleAddLeague={handleAddLeague}*/ />
-          </Card>
-        </PopoverContent>
-      </Popover>
-      <LeagueListCards leagues={leagues} />
+      <div className="flex flex-row justify-between">
+        <h1 className="flex justify-start text-xl font-bold">
+          League Management
+        </h1>
+        <div className="flex justify-end">
+          <Popover open={isPopOverOpen} onOpenChange={setIsPopOverOpen}>
+            <PopoverTrigger>
+              <Button>Add League</Button>
+            </PopoverTrigger>
+            <PopoverContent>
+              <Card>
+                <AddLeagueForm handleAddLeague={handleAddLeague} />
+              </Card>
+            </PopoverContent>
+          </Popover>
+        </div>
+      </div>
+      {/* <LeagueListCards leagues={leagues} /> */}
+      <LeagueTable leagues={leagues} />
     </>
   );
 }

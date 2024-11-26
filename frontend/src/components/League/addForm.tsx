@@ -16,6 +16,8 @@ import { Button } from "../ui/button";
 import { useState } from "react";
 import { LeagueCard } from "./addCard";
 import { UseFormHandleSubmit } from "react-hook-form";
+import { League } from "./league";
+import { log } from "console";
 const formSchema = z.object({
   league: z
     .string()
@@ -23,21 +25,23 @@ const formSchema = z.object({
     .max(20, { message: "should be less than 20 characters" }),
 });
 type AddLeagueProps = {
-  handleAddLeague: (league: string) => void;
+  handleAddLeague: (league: League) => void;
 };
 
-const AddLeagueForm = (/*{ handleAddLeague }: AddLeagueProps*/) => {
-  //   const [league, setLeague] = useState<string>("");
+const AddLeagueForm = ({ handleAddLeague }: AddLeagueProps) => {
+  const [league, setLeague] = useState<League>({ name: "" });
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      league: "",
+      league: league.name,
     },
   });
   function onSubmit(values: z.infer<typeof formSchema>) {
-    //setLeague(values.league);
-    //handleAddLeague(values.league);
+    const newLeague = { name: values.league };
+    setLeague(newLeague);
+    handleAddLeague(newLeague);
     console.log(values);
+    console.log({ ...form });
   }
   return (
     <Form {...form}>
@@ -50,7 +54,6 @@ const AddLeagueForm = (/*{ handleAddLeague }: AddLeagueProps*/) => {
               <FormLabel>League</FormLabel>
               <FormControl>
                 <Input placeholder="enter league name" {...field} />
-                {/* <LeagueCard league={league} /> */}
               </FormControl>
               <FormDescription>form to add a new league</FormDescription>
               <FormMessage />
