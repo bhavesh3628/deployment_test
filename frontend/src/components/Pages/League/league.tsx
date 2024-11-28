@@ -5,13 +5,15 @@ import {
 } from "@/components/ui/popover";
 
 import { Card } from "@/components/ui/card";
-import AddLeagueForm from "./addForm";
+import AddLeagueForm from "./addForm.js";
 import { useState } from "react";
-import { LeagueListCards, LeagueTable } from "./LeagueCardList";
-import { Button } from "../ui/button";
+import { LeagueListCards, LeagueTable } from "./LeagueTable.js";
+import { Button } from "../../ui/button.js";
 
 export type League = {
+  id: number;
   name: string;
+  createdAt: string;
 };
 
 function League() {
@@ -24,12 +26,12 @@ function League() {
   };
 
   return (
-    <>
+    <div className="w-full m-1">
       <div className="flex flex-row justify-between">
         <h1 className="flex justify-start text-xl font-bold">
           League Management
         </h1>
-        <div className="flex justify-end">
+        <div className="flex justify-center">
           <Popover open={isPopOverOpen} onOpenChange={setIsPopOverOpen}>
             <PopoverTrigger>
               <Button>Add League</Button>
@@ -42,9 +44,11 @@ function League() {
           </Popover>
         </div>
       </div>
+      <div className="block">
+        <LeagueTable leagues={leagues} />
+      </div>
       {/* <LeagueListCards leagues={leagues} /> */}
-      <LeagueTable leagues={leagues} />
-    </>
+    </div>
   );
 }
 

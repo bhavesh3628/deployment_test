@@ -11,51 +11,51 @@ import {
   FormDescription,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
+import { Input } from "../../ui/input.js";
+import { Button } from "../../ui/button.js";
 import { useState } from "react";
-import { LeagueCard } from "./addCard";
-import { UseFormHandleSubmit } from "react-hook-form";
-import { League } from "./league";
-import { log } from "console";
+import { Edition } from "./edition.tsx";
+
 const formSchema = z.object({
-  league: z
+  name: z
     .string()
     .min(2, { message: "must be at least 2 characters" })
     .max(20, { message: "should be less than 20 characters" }),
 });
-type AddLeagueProps = {
-  handleAddLeague: (league: League) => void;
+type AddEditionProps = {
+  handleAddEdition: (edition: Edition) => void;
 };
 
-const AddLeagueForm = ({ handleAddLeague }: AddLeagueProps) => {
-  const [league, setLeague] = useState<League>({ name: "" });
+const AddEditionForm = ({ handleAddEdition }: AddEditionProps) => {
+  const [edition, setEdition] = useState<Edition>({
+    name: "",
+    id: 0,
+    leagueId: 0,
+  });
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      league: league.name,
+      name: edition.name,
     },
   });
   function onSubmit(values: z.infer<typeof formSchema>) {
-    const newLeague = { name: values.league };
-    setLeague(newLeague);
-    handleAddLeague(newLeague);
-    console.log(values);
-    console.log({ ...form });
+    const newEdition = { name: values.name, id: 1, leagueId: 1 };
+    setEdition(newEdition);
+    handleAddEdition(newEdition);
   }
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
-          name="league"
+          name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>League</FormLabel>
+              <FormLabel>Edition</FormLabel>
               <FormControl>
-                <Input placeholder="enter league name" {...field} />
+                <Input placeholder="enter edition name" {...field} />
               </FormControl>
-              <FormDescription>form to add a new league</FormDescription>
+              <FormDescription>form to add a new edition</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -66,4 +66,4 @@ const AddLeagueForm = ({ handleAddLeague }: AddLeagueProps) => {
   );
 };
 
-export default AddLeagueForm;
+export default AddEditionForm;

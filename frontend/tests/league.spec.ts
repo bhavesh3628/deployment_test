@@ -1,4 +1,5 @@
 import { test, expect, Page } from "@playwright/test";
+import { table } from "console";
 import exp from "constants";
 import { useReducer } from "react";
 
@@ -44,15 +45,39 @@ test.describe("League Management", () => {
   test("should show a popover when add league button is clicked", async ({
     page,
   }) => {
-    const button = await page.getByRole("button", { name: "Add League" });
+    //given
+    const button = await page.getByText("Add League");
+
+    //when
     await button.click();
+
+    //then
+    const popover = await page.getByRole("dialog");
+    await expect(popover).toBeVisible();
   });
 
-  test("should enter league details and be able to see submit when popover is triggered", async ({
+  test("should be able to add league and be able to see league in table", async ({
     page,
-  }) => {});
+  }) => {
+    //given
+    const button = await page.getByText("Add League");
+    await button.click();
+    const popover = await page.getByRole("dialog");
 
-  test("should add league when league details are entered and submit is clicked", async ({
-    page,
-  }) => {});
+    //when
+    await expect(popover).toBeVisible();
+    const input = await page.getByRole("textbox");
+    await input.fill("IPL");
+    // await page.waitForTimeout(1000);
+
+    //then
+    const addButton = await page.getByText(/^Add$/);
+    // await page.waitForTimeout(1000);
+    await addButton.click();
+    const tableRow = await page.getByRole("row", { name: "1" });
+    // await page.waitForTimeout(1000);
+    const tableCell = await page.getByRole("cell", { name: "IPL" });
+    await expect(tableRow).toBeVisible();
+    await expect(tableCell).toHaveText("IPL");
+  });
 });

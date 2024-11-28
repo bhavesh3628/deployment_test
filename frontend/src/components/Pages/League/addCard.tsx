@@ -1,5 +1,5 @@
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import { League } from "./league";
+import { League } from "./league.js";
 import { ReactNode } from "react";
 
 type Props = {

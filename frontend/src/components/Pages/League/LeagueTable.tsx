@@ -1,5 +1,5 @@
-import { LeagueCard } from "./addCard";
-import { League } from "./league";
+import { LeagueCard } from "./addCard.js";
+import { League } from "./league.js";
 import {
   Table,
   TableBody,
@@ -12,7 +12,7 @@ import {
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare, faTrash } from "@fortawesome/free-solid-svg-icons";
-import { Button } from "../ui/button";
+import { Button } from "../../ui/button.js";
 
 type handleLeagueProps = {
   leagues: League[];
@@ -20,7 +20,7 @@ type handleLeagueProps = {
 
 export const LeagueTable = ({ leagues }: handleLeagueProps) => {
   return (
-    <Table className="mt-5">
+    <Table className="">
       <TableHeader>
         <TableRow>
           <TableHead>ID</TableHead>
@@ -34,9 +34,9 @@ export const LeagueTable = ({ leagues }: handleLeagueProps) => {
           <>
             {leagues.map((league) => (
               <TableRow>
-                <TableCell>1</TableCell>
+                <TableCell>{league.id}</TableCell>
                 <TableCell>{league.name}</TableCell>
-                <TableCell>1</TableCell>
+                <TableCell>{league.createdAt}</TableCell>
                 <TableCell>
                   <Button>
                     <FontAwesomeIcon icon={faPenToSquare} />
