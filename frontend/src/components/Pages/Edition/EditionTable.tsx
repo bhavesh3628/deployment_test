@@ -1,4 +1,4 @@
-import { leagueService, League } from "./league.service";
+import editionService, { Edition } from "./edition.service";
 import {
   Table,
   TableBody,
@@ -18,33 +18,25 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover.js";
 import { Card } from "@/components/ui/card.js";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import EditLeagueForm from "./EditForm.js";
+import { leagueService } from "../league/league.service.js";
 
-type LeagueTableProps = {
-  leagues: League[];
-  setLeagues: (leagues: League[]) => void;
+type EditionTableProps = {
+  editions: Edition[];
+  setEditions: (editions: Edition[]) => void;
 };
 
-export const LeagueTable = ({ leagues, setLeagues }: LeagueTableProps) => {
+export const EditionTable = ({ editions, setEditions }: EditionTableProps) => {
   const [editPopoverId, setEditPopoverId] = useState<number>();
 
-  const handleEditLeague = (id: number, editedName: string) => {
-    // const editedLeague = leagues.find((league) => league.id === id);
-    // if (editedLeague) {
-    //   editedLeague.name = editedName;
-    //   const updatedLeagues = leagues.filter((league) => league.id !== id);
-
-    // }
-    //setLeagues([editedLeague, ...updatedLeagues]); //service.getAll
-    setLeagues(leagueService.getAll());
+  const handleEditEdition = (id: number, editedName: string) => {
+    setEditions(editionService.getAll());
     setEditPopoverId(undefined);
-    // setLeagues(leagues);
-    // console.log(editedLeague);
   };
-  const handleDeleteLeague = (leagueId: number) => {
-    leagueService.deleteOne(leagueId);
-    setLeagues(leagueService.getAll());
+  const handleDeleteEdition = (editionId: number) => {
+    editionService.deleteOne(editionId);
+    setEditions(editionService.getAll());
   };
 
   return (
@@ -52,38 +44,40 @@ export const LeagueTable = ({ leagues, setLeagues }: LeagueTableProps) => {
       <TableHeader>
         <TableRow>
           <TableHead>Sr No.</TableHead>
+          <TableHead>LEAGUE</TableHead>
           <TableHead>NAME</TableHead>
-          <TableHead>CREATED AT</TableHead>
           <TableHead>ACTIONS</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {leagues.length > 0 ? (
+        {editions.length > 0 ? (
           <>
-            {leagues.map((league, key) => (
+            {editions.map((edition, key) => (
               <TableRow>
                 <TableCell>{key + 1}</TableCell>
-                <TableCell>{league.name}</TableCell>
-                <TableCell>{league.createdAt}</TableCell>
+                <TableCell>
+                  {leagueService.findLeague(edition.leagueId).name}
+                </TableCell>
+                <TableCell>{edition.name}</TableCell>
                 <TableCell>
                   <Popover
-                    key={league.id}
-                    open={editPopoverId === league.id}
+                    key={edition.id}
+                    open={editPopoverId === edition.id}
                     onOpenChange={(open: boolean) => {
                       console.log("open", open);
-                      setEditPopoverId(open ? league.id : undefined);
+                      setEditPopoverId(open ? edition.id : undefined);
                     }}
                   >
                     <PopoverTrigger>
-                      <Button key={league.id}>
+                      <Button key={edition.id}>
                         <FontAwesomeIcon icon={faPenToSquare} />
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent>
                       <Card>
                         <EditLeagueForm
-                          currentLeague={league}
-                          handleEditLeague={handleEditLeague}
+                          currentEdition={edition}
+                          handleEditEdition={handleEditEdition}
                         />
                       </Card>
                     </PopoverContent>
@@ -99,12 +93,12 @@ export const LeagueTable = ({ leagues, setLeagues }: LeagueTableProps) => {
                       <Card>
                         <p className="m-2">
                           Are you sure you want to delete{" "}
-                          <strong>{league.name}?</strong>
+                          <strong>{edition.name}?</strong>
                         </p>
                         <Button
                           className="ml-20 mb-2"
                           onClick={() => {
-                            handleDeleteLeague(league.id);
+                            handleDeleteEdition(edition.id);
                           }}
                         >
                           Confirm
@@ -118,7 +112,7 @@ export const LeagueTable = ({ leagues, setLeagues }: LeagueTableProps) => {
           </>
         ) : (
           <TableRow>
-            <TableCell colSpan={4}>No leagues added</TableCell>
+            <TableCell colSpan={4}>No editions added</TableCell>
           </TableRow>
         )}
       </TableBody>

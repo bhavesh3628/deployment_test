@@ -5,24 +5,23 @@ import {
 } from "@/components/ui/popover";
 
 import { Card } from "@/components/ui/card";
-import AddLeagueForm from "./addForm.js";
+import AddLeagueForm from "./AddForm.js";
 import { useState } from "react";
-import { LeagueListCards, LeagueTable } from "./LeagueTable.js";
+import { LeagueTable } from "./LeagueTable.js";
 import { Button } from "../../ui/button.js";
+import service, { League } from "./league.service.js";
 
-export type League = {
-  id: number;
-  name: string;
-  createdAt: string;
-};
+function LeagueComponent() {
+  // change leagues state on API call success
+  const [leagues, setLeagues] = useState<League[]>(service.getAll());
+  const [isPopoverOpen, setPopover] = useState(false);
 
-function League() {
-  const [leagues, setLeague] = useState<League[]>([]);
-  const [isPopOverOpen, setIsPopOverOpen] = useState(false);
-
-  const handleAddLeague = (newleague: League) => {
-    setLeague([...leagues, newleague]);
-    setIsPopOverOpen(false);
+  const handleAddLeague = (newLeague: League) => {
+    // refresh league list
+    // const updatedLeagues = [...leagues];
+    // updatedLeagues.unshift(newLeague)
+    setLeagues(service.getAll());
+    setPopover(false);
   };
 
   return (
@@ -32,7 +31,7 @@ function League() {
           League Management
         </h1>
         <div className="flex justify-center">
-          <Popover open={isPopOverOpen} onOpenChange={setIsPopOverOpen}>
+          <Popover open={isPopoverOpen} onOpenChange={setPopover}>
             <PopoverTrigger>
               <Button>Add League</Button>
             </PopoverTrigger>
@@ -45,11 +44,11 @@ function League() {
         </div>
       </div>
       <div className="block">
-        <LeagueTable leagues={leagues} />
+        <LeagueTable leagues={leagues} setLeagues={setLeagues} />
       </div>
       {/* <LeagueListCards leagues={leagues} /> */}
     </div>
   );
 }
 
-export default League;
+export default LeagueComponent;

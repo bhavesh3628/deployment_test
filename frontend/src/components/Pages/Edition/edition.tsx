@@ -6,15 +6,20 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useState } from "react";
+import AddEditionForm from "./AddForm";
+import editionService, { Edition } from "./edition.service";
+import { EditionTable } from "./EditionTable";
 
-export type Edition = {
-  name: string;
-  leagueId: number;
-  id: number;
-};
-
-export const Edition = () => {
+export const EditionComponent = () => {
   const [isPopOverOpen, setIsPopOverOpen] = useState(false);
+  const [editions, setEditions] = useState(editionService.getAll());
+  const handleAddEdition = (newEdition: Edition) => {
+    // refresh league list
+    // const updatedLeagues = [...leagues];
+    // updatedLeagues.unshift(newLeague)
+    setEditions(editionService.getAll());
+    setIsPopOverOpen(false);
+  };
   return (
     <>
       <div className="w-full m-1">
@@ -25,19 +30,21 @@ export const Edition = () => {
           <div className="flex justify-center">
             <Popover open={isPopOverOpen} onOpenChange={setIsPopOverOpen}>
               <PopoverTrigger>
-                <Button>Add League</Button>
+                <Button>Add Edition</Button>
               </PopoverTrigger>
               <PopoverContent>
                 <Card>
-                  {/* <AddEditionForm handleAddEdition={handleAddEdition} /> */}
+                  <AddEditionForm handleAddEdition={handleAddEdition} />
                 </Card>
               </PopoverContent>
             </Popover>
           </div>
         </div>
-        <div className="block">{/* <EditionTable Edition={Editions} /> */}</div>
-        {/* <LeagueListCards leagues={leagues} /> */}
+        <div className="block">
+          <EditionTable editions={editions} setEditions={setEditions} />
+        </div>
       </div>
     </>
   );
 };
+export { Edition };

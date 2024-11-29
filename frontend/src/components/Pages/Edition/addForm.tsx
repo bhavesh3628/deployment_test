@@ -14,7 +14,7 @@ import {
 import { Input } from "../../ui/input.js";
 import { Button } from "../../ui/button.js";
 import { useState } from "react";
-import { Edition } from "./edition.tsx";
+import { Edition } from "./Edition";
 
 const formSchema = z.object({
   name: z

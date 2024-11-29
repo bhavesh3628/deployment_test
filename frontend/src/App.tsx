@@ -1,9 +1,10 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
-import League from "./components/Pages/League/league.js";
+import LeagueComponent from "./components/Pages/league/Leagues.js";
 import { AppSidebar } from "./components/Pages/AppSideBar";
 import { SidebarProvider, SidebarTrigger } from "./components/ui/sidebar";
 import { Home } from "./components/Pages/Home";
+import { EditionComponent } from "./components/Pages/edition/Edition.js";
 
 function App() {
   return (
@@ -13,10 +14,10 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/league" element={<League />} />
-          <Route path="/edition" element={<League />} />
-          <Route path="/franchise" element={<League />} />
-          <Route path="/players" element={<League />} />
+          <Route path="/league" element={<LeagueComponent />} />
+          <Route path="/edition" element={<EditionComponent />} />
+          <Route path="/franchise" element={<LeagueComponent />} />
+          <Route path="/players" element={<LeagueComponent />} />
         </Routes>
       </Router>
     </SidebarProvider>

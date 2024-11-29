@@ -11,11 +11,11 @@ import {
   FormDescription,
   FormMessage,
 } from "@/components/ui/form";
+
 import { Input } from "../../ui/input.js";
 import { Button } from "../../ui/button.js";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { leagueService, League } from "./league.service";
-import { CreateLeagueDTO } from "./types.js";
 
 const formSchema = z.object({
   name: z
@@ -23,31 +23,36 @@ const formSchema = z.object({
     .min(2, { message: "must be at least 2 characters" })
     .max(20, { message: "should be less than 20 characters" }),
 });
-type AddLeagueProps = {
-  handleAddLeague: (league: League) => void;
+type EditLeagueProps = {
+  handleEditLeague: (id: number, editedName: string) => void;
+  currentLeague: League;
 };
 
-const AddLeagueForm = ({ handleAddLeague }: AddLeagueProps) => {
-  const [league, setLeague] = useState<League>({
-    name: "",
-    id: 0,
-    editions: [],
-    createdAt: "",
-  });
+const EditLeagueForm = ({
+  handleEditLeague,
+  currentLeague,
+}: EditLeagueProps) => {
+  // const [editedLeague, setEditedLeague] = useState<League>({
+  //   name: "",
+  //   id: 0,
+  //   editions: [],
+  //   createdAt: "",
+  // });
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: league.name,
+      name: currentLeague.name,
     },
   });
+
   function onSubmit(values: z.infer<typeof formSchema>) {
-    const newLeagueDTO: CreateLeagueDTO = {
-      name: values.name,
-    };
-    const newLeague = leagueService.addOne(newLeagueDTO);
-    setLeague(newLeague);
-    handleAddLeague(newLeague);
+    console.log({ currentLeague, values });
+    const editedLeague = leagueService.editOne(currentLeague.id, values.name);
+    // console.log(editedLeague);
+    handleEditLeague(currentLeague.id, editedLeague.name);
+    //  setEditedLeague();
   }
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -58,17 +63,22 @@ const AddLeagueForm = ({ handleAddLeague }: AddLeagueProps) => {
             <FormItem>
               <FormLabel>League</FormLabel>
               <FormControl>
-                <Input placeholder="enter league name" {...field} />
+                {/* placeholder is used to indicate user what will be the value or example */}
+                <Input
+                  {...field}
+                  placeholder={"Please Enter Edited League Name"}
+                  // value={currentLeague.name}
+                />
               </FormControl>
               <FormDescription>form to add a new league</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit">Add</Button>
+        <Button type="submit">Edit</Button>
       </form>
     </Form>
   );
 };
 
-export default AddLeagueForm;
+export default EditLeagueForm;
