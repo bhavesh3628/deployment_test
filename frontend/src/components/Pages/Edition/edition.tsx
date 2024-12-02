@@ -5,21 +5,62 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AddEditionForm from "./AddForm";
 import editionService, { Edition } from "./edition.service";
 import { EditionTable } from "./EditionTable";
+import leagueService, { League } from "../league/league.service";
+
+export type EditionWithLeagues = {
+  league: League | undefined;
+  leagueId: number;
+  name: string;
+  id: number;
+  auctionId?: number;
+};
 
 export const EditionComponent = () => {
+  let [editionWithLeagues, setEditionWithLeagues] = useState<
+    EditionWithLeagues[]
+  >([]);
+  const leagues = JSON.parse(localStorage.getItem("leagues")!) ?? [
+    {
+      name: "hi",
+      id: 1,
+      editions: [],
+      createdAt: "02/12/2024, 11:54:21",
+    },
+  ];
   const [isPopOverOpen, setIsPopOverOpen] = useState(false);
-  const [editions, setEditions] = useState(editionService.getAll());
-  const handleAddEdition = (newEdition: Edition) => {
+  const [editions, setEditions] = useState<Edition[]>([]);
+
+  const handleAddEdition = async () => {
     // refresh league list
     // const updatedLeagues = [...leagues];
     // updatedLeagues.unshift(newLeague)
-    setEditions(editionService.getAll());
+    setEditions(await editionService.getAll());
     setIsPopOverOpen(false);
+    fetchEditions();
   };
+
+  const fetchEditions = async () => {
+    try {
+      const editions = await editionService.getAll();
+      const leagues = await leagueService.getAll();
+      let newEditions: EditionWithLeagues[] = editions.map((edition) => {
+        const league = leagues.find((league) => league.id === edition.leagueId);
+        return { ...edition, league };
+      });
+      setEditionWithLeagues(newEditions);
+      // setEditions(editions);
+    } catch (error) {
+      console.error("Failed to fetch editions:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchEditions();
+  }, []);
   return (
     <>
       <div className="w-full m-1">
@@ -34,14 +75,20 @@ export const EditionComponent = () => {
               </PopoverTrigger>
               <PopoverContent>
                 <Card>
-                  <AddEditionForm handleAddEdition={handleAddEdition} />
+                  <AddEditionForm
+                    handleAddEdition={handleAddEdition}
+                    leagues={leagues}
+                  />
                 </Card>
               </PopoverContent>
             </Popover>
           </div>
         </div>
         <div className="block">
-          <EditionTable editions={editions} setEditions={setEditions} />
+          <EditionTable
+            editionWithLeagues={editionWithLeagues}
+            setEditions={setEditions}
+          />
         </div>
       </div>
     </>

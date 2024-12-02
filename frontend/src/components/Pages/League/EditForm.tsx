@@ -15,7 +15,7 @@ import {
 import { Input } from "../../ui/input.js";
 import { Button } from "../../ui/button.js";
 import { useEffect, useState } from "react";
-import { leagueService, League } from "./league.service";
+import leagueService, { League } from "./league.service";
 
 const formSchema = z.object({
   name: z
@@ -45,9 +45,12 @@ const EditLeagueForm = ({
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log({ currentLeague, values });
-    const editedLeague = leagueService.editOne(currentLeague.id, values.name);
+    const editedLeague = await leagueService.editOne(
+      currentLeague.id,
+      values.name
+    );
     // console.log(editedLeague);
     handleEditLeague(currentLeague.id, editedLeague.name);
     //  setEditedLeague();

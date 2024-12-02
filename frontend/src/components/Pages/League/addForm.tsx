@@ -14,7 +14,7 @@ import {
 import { Input } from "../../ui/input.js";
 import { Button } from "../../ui/button.js";
 import { useState } from "react";
-import { leagueService, League } from "./league.service";
+import leagueService, { League } from "./league.service";
 import { CreateLeagueDTO } from "./types.js";
 
 const formSchema = z.object({
@@ -24,7 +24,7 @@ const formSchema = z.object({
     .max(20, { message: "should be less than 20 characters" }),
 });
 type AddLeagueProps = {
-  handleAddLeague: (league: League) => void;
+  handleAddLeague: () => void;
 };
 
 const AddLeagueForm = ({ handleAddLeague }: AddLeagueProps) => {
@@ -40,13 +40,14 @@ const AddLeagueForm = ({ handleAddLeague }: AddLeagueProps) => {
       name: league.name,
     },
   });
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     const newLeagueDTO: CreateLeagueDTO = {
       name: values.name,
     };
-    const newLeague = leagueService.addOne(newLeagueDTO);
+
+    const newLeague = await leagueService.addOne(newLeagueDTO);
     setLeague(newLeague);
-    handleAddLeague(newLeague);
+    handleAddLeague();
   }
   return (
     <Form {...form}>

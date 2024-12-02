@@ -2,33 +2,50 @@ import { Edition } from "../../../../../Edition/editionService";
 import { CreateLeagueDTO } from "./types";
 
 export class LeagueService {
-  public leagues: League[] = [];
+  async getAll() {
+    let leagues = localStorage.getItem("leagues");
 
-  getAll() {
-    return this.leagues;
+    if (leagues) return Promise.resolve<League[]>(JSON.parse(leagues));
+
+    return Promise.resolve([]);
   }
 
-  addOne(league: CreateLeagueDTO) {
+  async addOne(league: CreateLeagueDTO) {
     let newLeague: League = new League(league);
-    this.leagues = [...this.leagues, newLeague];
+    let leagues = await this.getAll();
+
+    localStorage.setItem("leagues", JSON.stringify([...leagues, newLeague]));
+
     return newLeague;
   }
 
-  deleteOne(id: number) {
-    this.leagues = this.leagues.filter((league) => league.id !== id);
-  }
-  findLeague(LeagueId: number) {
-    const league = this.leagues.find((League) => League.id === LeagueId);
-    if (league) return league;
-    else throw new Error("league not found");
+  async deleteOne(id: number) {
+    const leagues = await this.getAll();
+    localStorage.setItem(
+      "leagues",
+      JSON.stringify(leagues.filter((league) => league.id !== id))
+    );
   }
 
-  editOne(leagueId: number, editedName: string) {
-    let league = this.findLeague(leagueId);
-    if (league) {
-      league.name = editedName;
-      return league;
-    } else throw new Error("League not found");
+  async findLeague(leagueId: number) {
+    const leagues = await this.getAll();
+    const league = leagues.find((league) => league.id === leagueId);
+
+    if (league) return Promise.resolve(league);
+
+    return Promise.reject("League not found");
+  }
+
+  async editOne(leagueId: number, editedName: string) {
+    let leagues = await this.getAll();
+    const leagueToEdit = leagues.find((league) => league.id === leagueId);
+
+    if (leagueToEdit) {
+      leagueToEdit.name = editedName;
+      localStorage.setItem("leagues", JSON.stringify([...leagues]));
+      return Promise.resolve(leagueToEdit);
+    }
+    return Promise.reject("League not found");
   }
 }
 
@@ -47,4 +64,5 @@ export class League {
     this.createdAt = new Date().toLocaleString();
   }
 }
-export const leagueService = new LeagueService();
+const leagueService = new LeagueService();
+export default leagueService;

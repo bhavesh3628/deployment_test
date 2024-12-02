@@ -1,8 +1,7 @@
-import { leagueService, League } from "./league.service";
+import leagueService, { League } from "./league.service";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -28,8 +27,7 @@ type LeagueTableProps = {
 
 export const LeagueTable = ({ leagues, setLeagues }: LeagueTableProps) => {
   const [editPopoverId, setEditPopoverId] = useState<number>();
-
-  const handleEditLeague = (id: number, editedName: string) => {
+  const handleEditLeague = async (id: number, editedName: string) => {
     // const editedLeague = leagues.find((league) => league.id === id);
     // if (editedLeague) {
     //   editedLeague.name = editedName;
@@ -37,14 +35,15 @@ export const LeagueTable = ({ leagues, setLeagues }: LeagueTableProps) => {
 
     // }
     //setLeagues([editedLeague, ...updatedLeagues]); //service.getAll
-    setLeagues(leagueService.getAll());
+    setLeagues(await leagueService.getAll());
     setEditPopoverId(undefined);
     // setLeagues(leagues);
     // console.log(editedLeague);
   };
-  const handleDeleteLeague = (leagueId: number) => {
-    leagueService.deleteOne(leagueId);
-    setLeagues(leagueService.getAll());
+
+  const handleDeleteLeague = async (leagueId: number) => {
+    await leagueService.deleteOne(leagueId);
+    setLeagues(await leagueService.getAll());
   };
 
   return (

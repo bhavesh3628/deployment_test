@@ -1,44 +1,67 @@
+import { League } from "../league/league.service";
 import { CreateEditionDTO } from "./types";
 
 export class EditionService {
-  public editions: Edition[] = [];
-  getAll(leagueId?: number) {
-    if (leagueId) {
-      return this.editions.filter((edition) => edition.leagueId === leagueId);
+  async getAll(leagueId?: number) {
+    let editions = JSON.parse(localStorage.getItem("editions")!);
+    if (editions) {
+      if (leagueId) {
+        let leagueEditions = editions.filter(
+          (edition: Edition) => edition.leagueId === leagueId
+        );
+        return Promise.resolve<Edition[]>(leagueEditions);
+      }
+      return Promise.resolve<Edition[]>(editions);
     }
 
-    return this.editions;
+    return Promise.resolve([]);
   }
 
-  addOne(edition: CreateEditionDTO) {
+  async addOne(edition: CreateEditionDTO) {
     let newEdition = new Edition(edition);
+    const editions = await this.getAll();
 
-    this.editions = [...this.editions, newEdition];
+    localStorage.setItem("editions", JSON.stringify([...editions, newEdition]));
 
-    return newEdition;
+    return Promise.resolve(newEdition);
   }
 
-  deleteOne(id: number) {
-    this.editions = this.editions.filter((edition) => edition.id !== id);
+  async deleteOne(id: number) {
+    const editions = await this.getAll();
+    localStorage.setItem(
+      "editions",
+      JSON.stringify(editions.filter((edition) => edition.id !== id))
+    );
   }
 
-  editOne(id: number, editedName: string) {
-    let edition = this.findEdition(id);
+  async editOne(id: number, editedName: string) {
+    const editions = await this.getAll();
+    const edition = editions.find((edition) => edition.id === id);
+
     if (edition) {
       edition.name = editedName;
-      return edition;
-    } else throw new Error("Edition not found");
+      localStorage.setItem("editions", JSON.stringify([...editions]));
+      return Promise.resolve(edition);
+    }
+    return Promise.reject("Edition not found");
   }
 
-  setAuctionId(editionId: number, auctionId: number) {
-    let edition = this.editions.find((edition) => edition.id === editionId);
+  async setAuctionId(editionId: number, auctionId: number) {
+    const editions = await this.getAll();
+    let edition = editions.find((edition) => edition.id === editionId);
     if (edition) {
       edition.auctionId = auctionId;
     }
   }
 
-  findEdition(editionId: number) {
-    return this.editions.find((edition) => edition.id === editionId);
+  async findEdition(editionId: number) {
+    const editions = await this.getAll();
+    const edition = editions.find((edition) => edition.id === editionId);
+    if (edition) {
+      return Promise.resolve(edition);
+    } else {
+      return Promise.reject("Edition not found");
+    }
   }
 }
 

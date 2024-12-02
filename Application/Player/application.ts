@@ -15,46 +15,54 @@ export class PlayerApplicationService {
     this.applications = [];
   }
 
-  getAll() {
-    return this.applications;
+  async getAll() {
+    return Promise.resolve(this.applications);
   }
 
-  addOne(application: CreatePlayerApplicationDTO) {
-    let existingApplication = this.applications.find(
+  async addOne(application: CreatePlayerApplicationDTO) {
+    let applications = await this.getAll();
+    let existingApplication = applications.find(
       (currentApplication) =>
         currentApplication.playerId === application.playerId &&
         currentApplication.auctionId === application.auctionId
     );
     if (!existingApplication) {
       let newApplication = new PlayerApplication(application);
-      this.applications = [...this.applications, newApplication];
-      return newApplication;
+      this.applications = [...applications, newApplication];
+      return Promise.resolve(newApplication);
     }
-    throw new Error(
+    return Promise.reject(
       "Application already exist for the auction, please edit it"
     );
   }
 
-  editOne(applicationId: number, editApplicationDTO: EditPlayerApplicationDTO) {
-    this.applications = this.applications.map((currentApplication) =>
+  async editOne(
+    applicationId: number,
+    editApplicationDTO: EditPlayerApplicationDTO
+  ) {
+    let applications = await this.getAll();
+    this.applications = applications.map((currentApplication) =>
       currentApplication.id === applicationId
         ? { ...currentApplication, ...editApplicationDTO }
         : currentApplication
     );
 
-    let application = this.applications.find(
+    let application = applications.find(
       (application) => application.id === applicationId
     );
-    return application;
+    return Promise.resolve(application);
   }
 
-  deleteOne(applicationId: number) {
-    return (this.applications = this.applications.filter(
-      (application) => application.id !== applicationId
-    ));
+  async deleteOne(applicationId: number) {
+    let applications = await this.getAll();
+    return Promise.resolve(
+      (this.applications = applications.filter(
+        (application) => application.id !== applicationId
+      ))
+    );
   }
 
-  process(
+  async process(
     application: PlayerApplication,
     meta: PlayerApplicationMeta,
     status: Status,
@@ -70,12 +78,12 @@ export class PlayerApplicationService {
       };
       let approvedPlayer = new ApprovedPlayer(approvedPlayerDTO);
       auctionService.addToPlayerPool(approvedPlayer);
-      return application;
+      return Promise.resolve(application);
     } else {
-      console.log(
+      return Promise.reject(
         "please review your application according to rules of auction"
       );
-      return application;
+      // return application;
     }
   }
 }

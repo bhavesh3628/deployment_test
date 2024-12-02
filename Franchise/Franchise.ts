@@ -8,37 +8,42 @@ export class FranchiseService {
     this.franchises = [];
   }
 
-  getAll() {
-    return this.franchises;
+  async getAll() {
+    return Promise.resolve(this.franchises);
   }
 
-  addOne(franchiseDTO: CreateFranchiseDTO) {
+  async addOne(franchiseDTO: CreateFranchiseDTO) {
     let newFranchise = new Franchise(franchiseDTO);
-    this.franchises = [...this.franchises, newFranchise];
-    return newFranchise;
+    let franchises = await this.getAll();
+    this.franchises = [...franchises, newFranchise];
+    return Promise.resolve(newFranchise);
   }
 
-  deleteOne(franchiseId: number) {
-    this.franchises = this.franchises.filter(
+  async deleteOne(franchiseId: number) {
+    let franchises = await this.getAll();
+    this.franchises = franchises.filter(
       (franchise) => franchise.id !== franchiseId
     );
   }
 
-  editOne(franchiseId: number, editFranchiseDTO: EditFranchiseDTO) {
-    this.franchises = this.franchises.map((franchise) =>
+  async editOne(franchiseId: number, editFranchiseDTO: EditFranchiseDTO) {
+    let franchises = await this.getAll();
+    this.franchises = franchises.map((franchise) =>
       franchise.id === franchiseId
         ? { ...franchise, ...editFranchiseDTO }
         : franchise
     );
 
-    let franchise = this.franchises.find(
-      (franchise) => franchise.id === franchiseId
-    );
+    let franchise = this.findFranchise(franchiseId);
 
-    return franchise;
+    return Promise.resolve(franchise);
   }
-  findFranchise(franchiseId:number){
-    return this.franchises.find((franchise)=>franchise.id=== franchiseId)
+
+  async findFranchise(franchiseId: number) {
+    let franchises = await this.getAll();
+    return Promise.resolve(
+      franchises.find((franchise) => franchise.id === franchiseId)
+    );
   }
 }
 

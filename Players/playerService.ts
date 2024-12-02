@@ -1,5 +1,10 @@
 import { RoundBasePrice } from "../Application/Player/types";
-import { CreateApprovedPlayerDTO, CreatePlayerDTO, EditPlayerDTO, Skill } from "./Types";
+import {
+  CreateApprovedPlayerDTO,
+  CreatePlayerDTO,
+  EditPlayerDTO,
+  Skill,
+} from "./Types";
 
 export class PlayerService {
   private players: Player[];
@@ -8,21 +13,24 @@ export class PlayerService {
     this.players = [];
   }
 
-  getAll() {
-    return this.players;
+  async getAll() {
+    return Promise.resolve(this.players);
   }
 
-  addOne(player: CreatePlayerDTO) {
+  async addOne(player: CreatePlayerDTO) {
     let newPlayer = new Player(player);
-    this.players = [...this.players, newPlayer];
-    return newPlayer;
+    let players = await this.getAll();
+    this.players = [...players, newPlayer];
+    return Promise.resolve(newPlayer);
   }
 
-  deleteOne(playerId: number) {
-    this.players = this.players.filter((player) => player.id !== playerId);
-    return true;
+  async deleteOne(playerId: number) {
+    let players = await this.getAll();
+    this.players = players.filter((player) => player.id !== playerId);
+    return Promise.resolve(true);
   }
-  editOne(playerId: number, editedPlayer: EditPlayerDTO) {
+
+  async editOne(playerId: number, editedPlayer: EditPlayerDTO) {
     let updatedPlayer: EditPlayerDTO = {};
 
     if (editedPlayer.dob) {
@@ -44,12 +52,15 @@ export class PlayerService {
     // this.players[playerIndex] = {
     //     ...this.players[playerIndex], ...updatedPlayer
     // }
-    this.players = this.players.map((player) =>
+    let players = await this.getAll();
+    this.players = players.map((player) =>
       player.id === playerId ? { ...player, ...updatedPlayer } : player
     );
   }
-  getPlayer(playerId:number){
-    return this.players.find((player)=>player.id===playerId)
+
+  async getPlayer(playerId: number) {
+    let players = await this.getAll();
+    return Promise.resolve(players.find((player) => player.id === playerId));
   }
 }
 
@@ -71,21 +82,21 @@ export class Player {
   }
 }
 
-export type SoldStatus = "sold" | "unsold" 
+export type SoldStatus = "sold" | "unsold";
 export class ApprovedPlayer {
   public readonly playerId: number;
   public id: number;
   private static counter: number = 0;
   public auctionId: number;
   public roundBasePrice: RoundBasePrice;
-  public status: SoldStatus
+  public status: SoldStatus;
 
   constructor(approvedPlayerDTO: CreateApprovedPlayerDTO) {
     ApprovedPlayer.counter += 1;
     this.id = ApprovedPlayer.counter;
     this.playerId = approvedPlayerDTO.playerId;
-    this.auctionId = approvedPlayerDTO.auctionId
-    this.roundBasePrice = approvedPlayerDTO.roundBasePrice
-    this.status = "unsold"
+    this.auctionId = approvedPlayerDTO.auctionId;
+    this.roundBasePrice = approvedPlayerDTO.roundBasePrice;
+    this.status = "unsold";
   }
 }

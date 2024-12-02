@@ -15,18 +15,31 @@ import { Input } from "../../ui/input.js";
 import { Button } from "../../ui/button.js";
 import { useState } from "react";
 import { Edition } from "./Edition";
+import { League } from "../league/league.service.js";
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { CreateEditionDTO } from "./types.js";
+import editionService from "./edition.service.js";
 
 const formSchema = z.object({
   name: z
     .string()
     .min(2, { message: "must be at least 2 characters" })
     .max(20, { message: "should be less than 20 characters" }),
+  leagueId: z.string(),
 });
 type AddEditionProps = {
+  leagues: League[];
   handleAddEdition: (edition: Edition) => void;
 };
 
-const AddEditionForm = ({ handleAddEdition }: AddEditionProps) => {
+const AddEditionForm = ({ handleAddEdition, leagues }: AddEditionProps) => {
   const [edition, setEdition] = useState<Edition>({
     name: "",
     id: 0,
@@ -36,10 +49,16 @@ const AddEditionForm = ({ handleAddEdition }: AddEditionProps) => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: edition.name,
+      leagueId: "",
     },
   });
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    const newEdition = { name: values.name, id: 1, leagueId: 1 };
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    const newEditionDTO: CreateEditionDTO = {
+      name: values.name,
+      leagueId: +values.leagueId,
+    };
+
+    const newEdition = await editionService.addOne(newEditionDTO);
     setEdition(newEdition);
     handleAddEdition(newEdition);
   }
@@ -57,6 +76,28 @@ const AddEditionForm = ({ handleAddEdition }: AddEditionProps) => {
               </FormControl>
               <FormDescription>form to add a new edition</FormDescription>
               <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="leagueId"
+          render={({ field }) => (
+            <FormItem>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a verified email to display" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {leagues.map((league) => (
+                    <SelectItem value={String(league.id)}>
+                      {league.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </FormItem>
           )}
         />

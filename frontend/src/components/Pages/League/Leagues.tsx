@@ -6,23 +6,41 @@ import {
 
 import { Card } from "@/components/ui/card";
 import AddLeagueForm from "./AddForm.js";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LeagueTable } from "./LeagueTable.js";
 import { Button } from "../../ui/button.js";
-import service, { League } from "./league.service.js";
+import leagueService, { League } from "./league.service.js";
 
 function LeagueComponent() {
   // change leagues state on API call success
-  const [leagues, setLeagues] = useState<League[]>(service.getAll());
+
+  const [leagues, setLeagues] = useState<League[]>([]);
+  useEffect(() => {
+    const fetchLeagues = async () => {
+      try {
+        const leagues = await leagueService.getAll();
+        setLeagues(leagues);
+      } catch (error) {
+        console.error("Failed to fetch leagues:", error);
+      }
+    };
+
+    fetchLeagues();
+  }, []);
+
   const [isPopoverOpen, setPopover] = useState(false);
 
-  const handleAddLeague = (newLeague: League) => {
+  const handleAddLeague = async () => {
     // refresh league list
     // const updatedLeagues = [...leagues];
     // updatedLeagues.unshift(newLeague)
-    setLeagues(service.getAll());
+    setLeagues(await leagueService.getAll());
     setPopover(false);
   };
+
+  useEffect(() => {
+    localStorage.setItem("leagues", JSON.stringify(leagues));
+  }, [leagues]);
 
   return (
     <div className="w-full m-1">

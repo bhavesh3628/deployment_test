@@ -27,18 +27,20 @@ export class AuctionService {
     this.auctions = [];
   }
 
-  getAll() {
-    return this.auctions;
+  async getAll() {
+    return Promise.resolve(this.auctions);
   }
 
-  addOne(auctionDTO: CreateAuctionDTO) {
+  async addOne(auctionDTO: CreateAuctionDTO) {
     let auction = new Auction(auctionDTO);
-    this.auctions = [...this.auctions, auction];
-    return auction;
+    let auctions = await this.getAll();
+    this.auctions = [...auctions, auction];
+    return Promise.resolve(auction);
   }
 
-  addToPlayerPool(approvedPlayer: ApprovedPlayer) {
-    let auction = this.auctions.find(
+  async addToPlayerPool(approvedPlayer: ApprovedPlayer) {
+    let auctions = await this.getAll();
+    let auction = auctions.find(
       (auction) => auction.id === approvedPlayer.auctionId
     );
     if (auction) {
@@ -46,21 +48,21 @@ export class AuctionService {
     }
   }
 
-  addToRegisteredFranchise(registeredFranchise: CreateRegisteredFranchiseDTO) {
-    let auction = this.auctions.find(
-      (auction) => auction.id === registeredFranchise.auctionId
-    );
+  async addToRegisteredFranchise(
+    registeredFranchise: CreateRegisteredFranchiseDTO
+  ) {
+    let auction = await this.getAuction(registeredFranchise.auctionId);
     if (auction) {
       let newRegisteredFranchise = new RegisteredFranchise(registeredFranchise);
       auction.registeredFranchises = [
         ...auction.registeredFranchises,
         newRegisteredFranchise,
       ];
-      return newRegisteredFranchise;
-    }
+      return Promise.resolve(newRegisteredFranchise);
+    } else return Promise.reject("Invalid auction for franchise");
   }
 
-  processPlayerApplication(
+  async processPlayerApplication(
     application: PlayerApplication,
     meta: PlayerApplicationMeta,
     status: Status
@@ -75,11 +77,11 @@ export class AuctionService {
       };
       let approvedPlayer = new ApprovedPlayer(approvedPlayerDTO);
       this.addToPlayerPool(approvedPlayer);
-    }
-    return application;
+      return Promise.resolve(application);
+    } else return Promise.reject("application is rejected");
   }
 
-  processFranchiseApplication(
+  async processFranchiseApplication(
     application: FranchiseApplication,
     meta: FranchiseApplicationMeta,
     status: Status
@@ -96,11 +98,11 @@ export class AuctionService {
         registeredFranchiseDTO
       );
       this.addToRegisteredFranchise(franchiseApplication);
-    }
-    return application;
+      return Promise.resolve(application);
+    } else return Promise.reject("application is rejected!");
   }
 
-  private startRound(auction: Auction) {
+  private async startRound(auction: Auction) {
     let newRoundDTO: createRoundDTO = {
       auctionId: auction.id,
       poolPlayers: auction.poolPlayers.filter(
@@ -111,43 +113,46 @@ export class AuctionService {
     let newRound = new Round(newRoundDTO);
     newRound.status = "started";
     auction.rounds = [...auction.rounds, newRound];
-    return this.startSession(newRound);
+    return Promise.resolve(this.startSession(newRound));
   }
 
-  stopRound(round: Round) {
+  async stopRound(round: Round) {
     round.status = "concluded";
-    let auction = this.getAuction(round.auctionId);
-    if (auction.numberOfRounds === auction.rounds.length)
-      this.stopAuction(auction.id);
-    return round;
+    let auction = await this.getAuction(round.auctionId);
+    if (auction.numberOfRounds === auction.rounds.length) {
+      await this.stopAuction(auction.id);
+      return Promise.resolve(round);
+    } else Promise.reject("round is not stopped");
   }
 
-  stopAuction(auctionId: number) {
-    let auction = this.getAuction(auctionId);
+  async stopAuction(auctionId: number) {
+    let auction = await this.getAuction(auctionId);
     auction.status = "concluded";
-    return auction.poolPlayers;
+    return Promise.resolve(auction.poolPlayers);
   }
 
-  startSession(round: Round) {
-    console.log("in startSession");
-    let playerIndex = this.getRandomPlayerId(round);
+  async startSession(round: Round) {
+    let playerIndex = await this.getRandomPlayerId(round);
     let player = round.poolPlayers[playerIndex];
+    const auction = await this.getAuction(round.auctionId);
     let newBiddingSessionDTO: createBiddingSessionDTO = {
       playerId: player.id, //duplicates
-      auctionId: this.getAuction(round.auctionId).id,
+      auctionId: auction.id,
     };
     let newSession = new BiddingSession(newBiddingSessionDTO);
     newSession.status = "started";
     round.sessions = [...round.sessions, newSession];
-    console.log(newSession);
 
-    return newSession;
+    return Promise.resolve(newSession);
   }
 
-  stopSession(biddingSession: BiddingSession) {
-    let auction = this.getAuction(biddingSession.auctionId);
+  async stopSession(biddingSession: BiddingSession) {
+    let auction = await this.getAuction(biddingSession.auctionId);
     let round = auction.rounds.find((round) => round.status === "started");
-    let poolPlayer = this.getPoolPlayer(auction.id, biddingSession.playerId);
+    let poolPlayer = await this.getPoolPlayer(
+      auction.id,
+      biddingSession.playerId
+    );
 
     if (round) {
       let roundPlayer = round.poolPlayers.find(
@@ -161,24 +166,26 @@ export class AuctionService {
         }
 
         let lastBid = biddingSession.bids[biddingSession.bids.length - 1];
-        let winningFranchise = this.getRegisteredFranchise(
+        let winningFranchise = await this.getRegisteredFranchise(
           auction.id,
           lastBid.franchiseId
         );
-
-        winningFranchise.purse -= lastBid.amount; //wrap into franchise manipulation functions
-        winningFranchise.team = [
-          ...winningFranchise.team,
-          biddingSession.playerId,
-        ];
+        if (winningFranchise) {
+          winningFranchise.purse -= lastBid.amount; //wrap into franchise manipulation functions
+          winningFranchise.team = [
+            ...winningFranchise.team,
+            biddingSession.playerId,
+          ];
+        }
         if (round.sessions.length === round.poolPlayers.length) {
           this.stopRound(round);
-        } else return this.startSession(round);
+        } else return Promise.resolve(this.startSession(round));
       }
-    }
+    } else return Promise.reject("round not found");
   }
 
-  private getRandomPlayerId(round: Round): number {
+  // doubt - private functions
+  private async getRandomPlayerId(round: Round): Promise<number> {
     let randomId: number;
     if (round.poolPlayers.length === 0) return -1;
     else if (round.poolPlayers.length === 1) return 0;
@@ -188,79 +195,85 @@ export class AuctionService {
     if (!round.playerOrder.includes(randomId)) {
       round.playerOrder = [...round.playerOrder, randomId];
       console.log(round.playerOrder);
-      return randomId;
-    } else return this.getRandomPlayerId(round);
+      return Promise.resolve(randomId);
+    } else return Promise.reject(this.getRandomPlayerId(round));
   }
 
-  start(auctionId: number) {
-    let auction = this.getAuction(auctionId);
-    if (!auction) throw new Error("Auction not found");
+  async start(auctionId: number) {
+    let auction = await this.getAuction(auctionId);
     auction.status = "started";
-    console.log("in start auction");
-    return this.startRound(auction);
+    return Promise.resolve(this.startRound(auction));
   }
 
-  getAuction(auctionId: number): Auction {
+  async getAuction(auctionId: number) {
     let auction = this.auctions.find((auction) => auction.id === auctionId);
     if (!auction) {
-      throw new Error("auction not found");
+      return Promise.reject("auction not found");
     }
-    return auction;
+    return Promise.resolve(auction);
   }
-  getWinningBid(biddingSessionId: number) {
+  async getWinningBid(biddingSessionId: number) {
     let auction = this.auctions.find((auction) =>
       auction.rounds.find((round) =>
         round.sessions.find((session) => session.id === biddingSessionId)
       )
     );
-    if (!auction) throw new Error("auction not found");
-    let round = auction.rounds.find((round) =>
-      round.sessions.find((session) => session.id === biddingSessionId)
-    );
-    if (!round) throw new Error("round not found");
-    let biddingSession = round.sessions.find(
-      (session) => session.id === biddingSessionId
-    );
-    if (!biddingSession) throw new Error("bidding session not found");
-    let lastBid = biddingSession.bids[biddingSession.bids.length - 1];
-    return lastBid;
+    if (!auction) Promise.reject("auction not found");
+    else {
+      let round = auction.rounds.find((round) =>
+        round.sessions.find((session) => session.id === biddingSessionId)
+      );
+      if (!round) Promise.reject("round not found");
+      else {
+        let biddingSession = round.sessions.find(
+          (session) => session.id === biddingSessionId
+        );
+        if (!biddingSession) Promise.reject("bidding session not found");
+        else {
+          let lastBid = biddingSession.bids[biddingSession.bids.length - 1];
+          return Promise.resolve(lastBid);
+        }
+      }
+    }
   }
-  getRegisteredFranchise(auctionId: number, franchiseId: number) {
-    let auction = this.getAuction(auctionId);
+  async getRegisteredFranchise(auctionId: number, franchiseId: number) {
+    let auction = await this.getAuction(auctionId);
 
     let registeredFranchise = auction.registeredFranchises.find(
       (franchise) => franchise.franchiseId === franchiseId
     );
-    if (!registeredFranchise) throw new Error("franchise is not registered");
-    return registeredFranchise;
+    if (!registeredFranchise) Promise.reject("franchise is not registered");
+    return Promise.resolve(registeredFranchise);
   }
-  getPoolPlayer(auctionId: number, playerId: number) {
-    let auction = this.getAuction(auctionId);
+  async getPoolPlayer(auctionId: number, playerId: number) {
+    let auction = await this.getAuction(auctionId);
     let poolPlayer = auction.poolPlayers.find(
       (poolPlayer) => poolPlayer.playerId === playerId
     );
-    if (!poolPlayer) throw new Error("pool player is not registered");
-    return poolPlayer;
+    if (!poolPlayer) return Promise.reject("pool player is not registered");
+    return Promise.resolve(poolPlayer);
   }
 
-  bid(bidDTO: CreateBidDTO) {
-    let auction = this.getAuction(bidDTO.auctionId);
+  async bid(bidDTO: CreateBidDTO) {
+    let auction = await this.getAuction(bidDTO.auctionId);
     if (auction.status === "started") {
+      // find round
       let round = auction.rounds.find((round) => round.status === "started");
       if (round) {
+        // find biddingSession
         let currentBiddingSession = round.sessions.find(
           (session) => session.id === bidDTO.biddingSessionId
         );
         if (currentBiddingSession) {
           let newBid = new Bid(bidDTO);
+          // find poolplayers
           let player = auction.poolPlayers.find(
             (player) => player.id === currentBiddingSession.playerId
           );
           if (player) {
             if (player.roundBasePrice[round.number] > newBid.amount) {
               newBid.status = "rejected";
-              console.log(newBid);
-              return newBid;
+              return Promise.resolve(newBid);
             } else {
               if (
                 //wrap validation
@@ -274,7 +287,7 @@ export class AuctionService {
                   ...currentBiddingSession.bids,
                   newBid,
                 ];
-                return newBid; // returning bid if it is added
+                return Promise.resolve(newBid); // returning bid if it is added
               } else if (currentBiddingSession.bids.length === 0) {
                 newBid.status = "accepted";
                 currentBiddingSession.bids = [
@@ -284,17 +297,17 @@ export class AuctionService {
                 return newBid;
               } else {
                 newBid.status = "rejected";
-                return newBid;
+                return Promise.resolve(newBid);
               }
             }
           }
-          throw new Error("Player does not exist in session!!");
+          return Promise.reject("Player does not exist in session!!");
         }
-        throw new Error("Session does not exist!!!");
+        return Promise.reject("Session does not exist!!!");
       }
-      throw new Error("Round not found!!!");
+      return Promise.reject("Round not found!!!");
     }
-    throw new Error("Auction is not started yet");
+    return Promise.reject("Auction is not started yet");
   }
 }
 

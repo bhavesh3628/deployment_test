@@ -17,49 +17,54 @@ export class FranchiseApplicationService {
     this.applications = [];
   }
 
-  getAll() {
-    return this.applications;
+  async getAll() {
+    return Promise.resolve(this.applications);
   }
 
-  addOne(application: CreateFranchiseApplicationDTO) {
-    let existingApplication = this.applications.find(
+  async addOne(application: CreateFranchiseApplicationDTO) {
+    let applications = await this.getAll();
+    let existingApplication = applications.find(
       (currentApplication) =>
         currentApplication.franchiseId === application.franchiseId &&
         currentApplication.auctionId === application.auctionId
     );
     if (!existingApplication) {
       let newApplication = new FranchiseApplication(application);
-      this.applications = [...this.applications, newApplication];
-      return newApplication;
+      this.applications = [...applications, newApplication];
+      return Promise.resolve(newApplication);
     }
-    throw new Error(
+    return Promise.reject(
       "Application already exist for the auction, please edit it"
     );
   }
 
-  editOne(
+  async editOne(
     applicationId: number,
     editApplicationDTO: EditFranchiseApplicationDTO
   ) {
-    this.applications = this.applications.map((currentApplication) =>
+    let applications = await this.getAll();
+    this.applications = applications.map((currentApplication) =>
       currentApplication.id === applicationId
         ? { ...currentApplication, ...editApplicationDTO }
         : currentApplication
     );
 
-    let application = this.applications.find(
+    let application = applications.find(
       (application) => application.id === applicationId
     );
-    return application;
+    return Promise.resolve(application);
   }
 
-  deleteOne(applicationId: number) {
-    return (this.applications = this.applications.filter(
-      (application) => application.id !== applicationId
-    ));
+  async deleteOne(applicationId: number) {
+    let applications = await this.getAll();
+    return Promise.resolve(
+      (this.applications = applications.filter(
+        (application) => application.id !== applicationId
+      ))
+    );
   }
 
-  process(
+  async process(
     application: FranchiseApplication,
     meta: FranchiseApplicationMeta,
     status: Status,
@@ -75,9 +80,9 @@ export class FranchiseApplicationService {
       };
       let approvedFranchise = new RegisteredFranchise(approvedFranchiseDTO);
       auctionService.addToRegisteredFranchise(approvedFranchise);
-      return application;
+      return Promise.resolve(application);
     } else {
-      console.log(
+      return Promise.resolve(
         "please review your application according to rules of auction"
       );
     }

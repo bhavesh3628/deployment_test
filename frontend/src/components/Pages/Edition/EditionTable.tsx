@@ -20,23 +20,36 @@ import {
 import { Card } from "@/components/ui/card.js";
 import { useEffect, useState } from "react";
 import EditLeagueForm from "./EditForm.js";
-import { leagueService } from "../league/league.service.js";
+import leagueService from "../league/league.service.js";
+import { EditionWithLeagues } from "./Edition.js";
 
 type EditionTableProps = {
-  editions: Edition[];
+  editionWithLeagues: EditionWithLeagues[];
   setEditions: (editions: Edition[]) => void;
 };
 
-export const EditionTable = ({ editions, setEditions }: EditionTableProps) => {
+export const EditionTable = ({
+  editionWithLeagues,
+  setEditions,
+}: EditionTableProps) => {
   const [editPopoverId, setEditPopoverId] = useState<number>();
 
-  const handleEditEdition = (id: number, editedName: string) => {
-    setEditions(editionService.getAll());
+  const handleEditEdition = async () => {
+    setEditions(await editionService.getAll());
     setEditPopoverId(undefined);
   };
-  const handleDeleteEdition = (editionId: number) => {
-    editionService.deleteOne(editionId);
-    setEditions(editionService.getAll());
+  const handleDeleteEdition = async (editionId: number) => {
+    await editionService.deleteOne(editionId);
+    setEditions(await editionService.getAll());
+  };
+
+  const getLeagueName = async (leagueId: number) => {
+    let leagueName: string = "fallback";
+    await leagueService
+      .findLeague(leagueId)
+      .then((value) => (leagueName = value.name));
+
+    return leagueName;
   };
 
   return (
@@ -50,14 +63,12 @@ export const EditionTable = ({ editions, setEditions }: EditionTableProps) => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {editions.length > 0 ? (
+        {editionWithLeagues.length > 0 ? (
           <>
-            {editions.map((edition, key) => (
+            {editionWithLeagues.map((edition, key) => (
               <TableRow>
                 <TableCell>{key + 1}</TableCell>
-                <TableCell>
-                  {leagueService.findLeague(edition.leagueId).name}
-                </TableCell>
+                <TableCell>{edition.league?.name}</TableCell>
                 <TableCell>{edition.name}</TableCell>
                 <TableCell>
                   <Popover
