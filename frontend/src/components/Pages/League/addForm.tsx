@@ -13,8 +13,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "../../ui/input.js";
 import { Button } from "../../ui/button.js";
-import { useState } from "react";
-import leagueService, { League } from "./league.service";
+import { LeagueHandler } from "./league.service";
 import { CreateLeagueDTO } from "./types.js";
 
 const formSchema = z.object({
@@ -25,19 +24,15 @@ const formSchema = z.object({
 });
 type AddLeagueProps = {
   handleAddLeague: () => void;
+  leagueService: LeagueHandler
 };
 
-const AddLeagueForm = ({ handleAddLeague }: AddLeagueProps) => {
-  const [league, setLeague] = useState<League>({
-    name: "",
-    id: 0,
-    editions: [],
-    createdAt: "",
-  });
+const AddLeagueForm = ({ handleAddLeague,leagueService }: AddLeagueProps) => {
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: league.name,
+      name: "",
     },
   });
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -45,8 +40,7 @@ const AddLeagueForm = ({ handleAddLeague }: AddLeagueProps) => {
       name: values.name,
     };
 
-    const newLeague = await leagueService.addOne(newLeagueDTO);
-    setLeague(newLeague);
+    await leagueService.addOne(newLeagueDTO);
     handleAddLeague();
   }
   return (

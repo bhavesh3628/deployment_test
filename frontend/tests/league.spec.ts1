@@ -1,0 +1,81 @@
+// import { test, expect } from "@playwright/test";
+
+
+// test.beforeEach(async ({ page }) => {
+//   await page.goto("http://localhost:5173");
+// });
+
+// // test.describe("Visit Google", () => {
+// //   test("should match title", async ({ page }: Page) => {
+// //     await expect(page).toHaveTitle("Google");
+// //   });
+
+// //   test("search for hello world", async ({ page }: Page) => {
+// //     await page.getByRole("combobox").type("Hello World!", { delay: 500 });
+// //     await page.keyboard.press("Backspace");
+// //     await page.keyboard.press("Enter");
+// //     await expect(page).toHaveTitle("Hello World - Google Search");
+// //   });
+
+// //   test("search for procedure.tech", async ({ page }: Page) => {
+// //     await page.getByRole("combobox").type("procedure.tech", { delay: 100 });
+// //     await page.keyboard.press("Enter");
+// //     await page.getByRole("link", { url: "procedure.tech" }).click();
+// //     await expect(page).toHaveTitle("Home - Procedure");
+// //   });
+// // });
+
+// test.describe("League Management", () => {
+//   test("should have title: league management", async ({ page }) => {
+//     await expect(page).toHaveTitle(/RDC-2 Auction/);
+//   });
+
+//   test("should initially have empty table", async ({ page }) => {
+//     const text = await page.getByText("No leagues added");
+//     await expect(text).toBeVisible();
+//   });
+
+//   test("should have a button to add leagues", async ({ page }) => {
+//     const button = await page.getByRole("button", { name: "Add League" });
+//     await expect(button).toBeDefined();
+//   });
+
+//   test("should show a popover when add league button is clicked", async ({
+//     page,
+//   }) => {
+//     //given
+//     const button = await page.getByText("Add League");
+
+//     //when
+//     await button.click();
+
+//     //then
+//     const popover = await page.getByRole("dialog");
+//     await expect(popover).toBeVisible();
+//   });
+
+//   test("should be able to add league and be able to see league in table", async ({
+//     page,
+//   }) => {
+//     //given
+//     const button = await page.getByText("Add League");
+//     await button.click();
+//     const popover = await page.getByRole("dialog");
+
+//     //when
+//     await expect(popover).toBeVisible();
+//     const input = await page.getByRole("textbox");
+//     await input.fill("IPL");
+//     // await page.waitForTimeout(1000);
+
+//     //then
+//     const addButton = await page.getByText(/^Add$/);
+//     // await page.waitForTimeout(1000);
+//     await addButton.click();
+//     const tableRow = await page.getByRole("row", { name: "1" });
+//     // await page.waitForTimeout(1000);
+//     const tableCell = await page.getByRole("cell", { name: "IPL" });
+//     await expect(tableRow).toBeVisible();
+//     await expect(tableCell).toHaveText("IPL");
+//   });
+// });

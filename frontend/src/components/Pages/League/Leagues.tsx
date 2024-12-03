@@ -55,14 +55,14 @@ function LeagueComponent() {
             </PopoverTrigger>
             <PopoverContent>
               <Card>
-                <AddLeagueForm handleAddLeague={handleAddLeague} />
+                <AddLeagueForm handleAddLeague={handleAddLeague} leagueService={leagueService} />
               </Card>
             </PopoverContent>
           </Popover>
         </div>
       </div>
       <div className="block">
-        <LeagueTable leagues={leagues} setLeagues={setLeagues} />
+        <LeagueTable leagues={leagues} setLeagues={setLeagues} leagueService={leagueService} />
       </div>
       {/* <LeagueListCards leagues={leagues} /> */}
     </div>

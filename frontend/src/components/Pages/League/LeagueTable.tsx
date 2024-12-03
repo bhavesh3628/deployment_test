@@ -1,4 +1,4 @@
-import leagueService, { League } from "./league.service";
+import  { League, GetAllLeagueService, DeleteOneLeagueService, LocallyStoredLeagueService } from "./league.service";
 import {
   Table,
   TableBody,
@@ -18,32 +18,26 @@ import {
 } from "@/components/ui/popover.js";
 import { Card } from "@/components/ui/card.js";
 import { useState } from "react";
-import EditLeagueForm from "./EditForm.js";
+import EditLeagueForm from "./EditForm";
 
 type LeagueTableProps = {
   leagues: League[];
   setLeagues: (leagues: League[]) => void;
+  leagueService: LocallyStoredLeagueService
 };
 
-export const LeagueTable = ({ leagues, setLeagues }: LeagueTableProps) => {
+export const LeagueTable = ({ leagues, setLeagues, leagueService }: LeagueTableProps) => {
   const [editPopoverId, setEditPopoverId] = useState<number>();
-  const handleEditLeague = async (id: number, editedName: string) => {
-    // const editedLeague = leagues.find((league) => league.id === id);
-    // if (editedLeague) {
-    //   editedLeague.name = editedName;
-    //   const updatedLeagues = leagues.filter((league) => league.id !== id);
+  const [deletePopover, setDeletePopover] = useState<number>()
 
-    // }
-    //setLeagues([editedLeague, ...updatedLeagues]); //service.getAll
+  const handleEditLeague = async () => {
     setLeagues(await leagueService.getAll());
     setEditPopoverId(undefined);
-    // setLeagues(leagues);
-    // console.log(editedLeague);
   };
 
-  const handleDeleteLeague = async (leagueId: number) => {
-    await leagueService.deleteOne(leagueId);
+  const handleDeleteLeague = async () => {
     setLeagues(await leagueService.getAll());
+    setDeletePopover(undefined)
   };
 
   return (
@@ -66,7 +60,7 @@ export const LeagueTable = ({ leagues, setLeagues }: LeagueTableProps) => {
                 <TableCell>{league.createdAt}</TableCell>
                 <TableCell>
                   <Popover
-                    key={league.id}
+                    key={key}
                     open={editPopoverId === league.id}
                     onOpenChange={(open: boolean) => {
                       console.log("open", open);
@@ -88,22 +82,30 @@ export const LeagueTable = ({ leagues, setLeagues }: LeagueTableProps) => {
                     </PopoverContent>
                   </Popover>
                   &nbsp;
-                  <Popover>
+                  <Popover data-testid="popover" 
+                    key={league.id}
+                    open={deletePopover === league.id}
+                    onOpenChange={(open: boolean) => {
+                      setDeletePopover(open ? league.id : undefined);
+                    }}
+                  >
                     <PopoverTrigger>
-                      <Button>
+                      <Button  data-testid="trash">
                         <FontAwesomeIcon icon={faTrash} />
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent>
+                    <PopoverContent >
                       <Card>
                         <p className="m-2">
                           Are you sure you want to delete{" "}
                           <strong>{league.name}?</strong>
                         </p>
                         <Button
+                        data-testid="confirm-button"
                           className="ml-20 mb-2"
-                          onClick={() => {
-                            handleDeleteLeague(league.id);
+                          onClick={async () => {
+                            await leagueService.deleteOne(league.id)
+                            handleDeleteLeague();
                           }}
                         >
                           Confirm

@@ -1,9 +1,22 @@
 import { Edition } from "../../../../../Edition/editionService";
 import { CreateLeagueDTO } from "./types";
 
-export class LeagueService {
+export interface LeagueService {
+  addOne(league:CreateLeagueDTO): Promise<League>
+  editOne(leagueId: number, editedName: string): Promise<League>
+}
+
+export interface GetAllLeagueService {
+  getAll() :Promise<League[]>;
+}
+
+export interface DeleteOneLeagueService {
+  deleteOne(id:number): Promise<void>
+}
+
+export class LocallyStoredLeagueService {
   async getAll() {
-    let leagues = localStorage.getItem("leagues");
+    const leagues = localStorage.getItem("leagues");
 
     if (leagues) return Promise.resolve<League[]>(JSON.parse(leagues));
 
@@ -11,8 +24,8 @@ export class LeagueService {
   }
 
   async addOne(league: CreateLeagueDTO) {
-    let newLeague: League = new League(league);
-    let leagues = await this.getAll();
+    const newLeague: League = new League(league);
+    const leagues = await this.getAll();
 
     localStorage.setItem("leagues", JSON.stringify([...leagues, newLeague]));
 
@@ -27,17 +40,8 @@ export class LeagueService {
     );
   }
 
-  async findLeague(leagueId: number) {
-    const leagues = await this.getAll();
-    const league = leagues.find((league) => league.id === leagueId);
-
-    if (league) return Promise.resolve(league);
-
-    return Promise.reject("League not found");
-  }
-
   async editOne(leagueId: number, editedName: string) {
-    let leagues = await this.getAll();
+    const leagues = await this.getAll();
     const leagueToEdit = leagues.find((league) => league.id === leagueId);
 
     if (leagueToEdit) {
@@ -45,6 +49,7 @@ export class LeagueService {
       localStorage.setItem("leagues", JSON.stringify([...leagues]));
       return Promise.resolve(leagueToEdit);
     }
+
     return Promise.reject("League not found");
   }
 }
@@ -64,5 +69,5 @@ export class League {
     this.createdAt = new Date().toLocaleString();
   }
 }
-const leagueService = new LeagueService();
+const leagueService = new LocallyStoredLeagueService();
 export default leagueService;
