@@ -38,9 +38,9 @@ const EditEditionForm = ({
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log({ currentEdition, values });
-    const editedEdition = editionService.editOne(
+    const editedEdition = await editionService.editOne(
       currentEdition.id,
       values.name
     );

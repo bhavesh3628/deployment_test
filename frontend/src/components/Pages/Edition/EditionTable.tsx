@@ -1,8 +1,12 @@
-import editionService, { Edition } from "./edition.service";
+import {
+  DeleteOneEditionService,
+  Edition,
+  EditOneEditionService,
+  GetAllEditionService,
+} from "./edition.service";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -18,39 +22,42 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover.js";
 import { Card } from "@/components/ui/card.js";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import EditLeagueForm from "./EditForm.js";
-import leagueService from "../league/league.service.js";
 import { EditionWithLeagues } from "./Edition.js";
 
 type EditionTableProps = {
   editionWithLeagues: EditionWithLeagues[];
-  setEditions: (editions: Edition[]) => void;
+  setEdition: (editions: Edition[]) => void;
+  editionService: GetAllEditionService &
+    DeleteOneEditionService &
+    EditOneEditionService;
 };
 
 export const EditionTable = ({
   editionWithLeagues,
-  setEditions,
+  setEdition,
+  editionService,
 }: EditionTableProps) => {
   const [editPopoverId, setEditPopoverId] = useState<number>();
 
   const handleEditEdition = async () => {
-    setEditions(await editionService.getAll());
+    setEdition(await editionService.getAll());
     setEditPopoverId(undefined);
   };
   const handleDeleteEdition = async (editionId: number) => {
     await editionService.deleteOne(editionId);
-    setEditions(await editionService.getAll());
+    setEdition(await editionService.getAll());
   };
 
-  const getLeagueName = async (leagueId: number) => {
-    let leagueName: string = "fallback";
-    await leagueService
-      .findLeague(leagueId)
-      .then((value) => (leagueName = value.name));
+  // const getLeagueName = async (leagueId: number) => {
+  //   let leagueName: string = "fallback";
+  //   await leagueService
+  //     .findLeague(leagueId)
+  //     .then((value) => (leagueName = value.name));
 
-    return leagueName;
-  };
+  //   return leagueName;
+  // };
 
   return (
     <Table>
@@ -108,7 +115,8 @@ export const EditionTable = ({
                         </p>
                         <Button
                           className="ml-20 mb-2"
-                          onClick={() => {
+                          onClick={async () => {
+                            await editionService.deleteOne(edition.id);
                             handleDeleteEdition(edition.id);
                           }}
                         >

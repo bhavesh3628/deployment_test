@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "../../ui/input.js";
 import { Button } from "../../ui/button.js";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Edition } from "./Edition";
 import { League } from "../league/league.service.js";
 
@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import { CreateEditionDTO } from "./types.js";
 import editionService from "./edition.service.js";
+import { useLeagues } from "../AuctionProvider.js";
 
 const formSchema = z.object({
   name: z
@@ -35,29 +36,43 @@ const formSchema = z.object({
   leagueId: z.string(),
 });
 type AddEditionProps = {
-  leagues: League[];
   handleAddEdition: (edition: Edition) => void;
 };
 
-const AddEditionForm = ({ handleAddEdition, leagues }: AddEditionProps) => {
+const AddEditionForm = ({ handleAddEdition }: AddEditionProps) => {
   const [edition, setEdition] = useState<Edition>({
     name: "",
     id: 0,
     leagueId: 0,
   });
+  let leagues: League[];
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: edition.name,
-      leagueId: "",
+      leagueId: "0",
     },
   });
+
+  useEffect(() => {
+    const fetchLeagues = async () => {
+      let { leagueService } = useLeagues();
+      try {
+        leagues = await leagueService.getAll();
+      } catch (error) {
+        console.error("Failed to fetch leagues:", error);
+      }
+    };
+
+    fetchLeagues();
+  }, []);
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const newEditionDTO: CreateEditionDTO = {
       name: values.name,
       leagueId: +values.leagueId,
     };
-
+    console.log(newEditionDTO);
     const newEdition = await editionService.addOne(newEditionDTO);
     setEdition(newEdition);
     handleAddEdition(newEdition);
@@ -87,7 +102,7 @@ const AddEditionForm = ({ handleAddEdition, leagues }: AddEditionProps) => {
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a verified email to display" />
+                    <SelectValue placeholder="Select a league" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>

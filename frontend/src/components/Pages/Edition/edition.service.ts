@@ -1,7 +1,28 @@
-import { League } from "../league/league.service";
 import { CreateEditionDTO } from "./types";
 
-export class EditionService {
+export interface EditionService
+  extends GetAllEditionService,
+    DeleteOneEditionService,
+    AddOneEditionService,
+    EditOneEditionService {}
+
+export interface GetAllEditionService {
+  getAll(): Promise<Edition[]>;
+}
+
+export interface DeleteOneEditionService {
+  deleteOne(id: number): Promise<void>;
+}
+
+export interface EditOneEditionService {
+  editOne(id: number, editedName: string): Promise<Edition>;
+}
+
+export interface AddOneEditionService {
+  addOne(edition: CreateEditionDTO): Promise<Edition>;
+}
+
+export class LocallyStoredEditionService implements EditionService {
   async getAll(leagueId?: number) {
     let editions = JSON.parse(localStorage.getItem("editions")!);
     if (editions) {
@@ -80,6 +101,6 @@ export class Edition {
   }
 }
 
-const editionService = new EditionService();
+const editionService = new LocallyStoredEditionService();
 
 export default editionService;

@@ -9,7 +9,8 @@ import { useEffect, useState } from "react";
 import AddEditionForm from "./AddForm";
 import editionService, { Edition } from "./edition.service";
 import { EditionTable } from "./EditionTable";
-import leagueService, { League } from "../league/league.service";
+import { League } from "../league/league.service";
+import { useLeagues } from "../AuctionProvider";
 
 export type EditionWithLeagues = {
   league: League | undefined;
@@ -20,47 +21,38 @@ export type EditionWithLeagues = {
 };
 
 export const EditionComponent = () => {
+  const { leagueService } = useLeagues();
   let [editionWithLeagues, setEditionWithLeagues] = useState<
     EditionWithLeagues[]
   >([]);
-  const leagues = JSON.parse(localStorage.getItem("leagues")!) ?? [
-    {
-      name: "hi",
-      id: 1,
-      editions: [],
-      createdAt: "02/12/2024, 11:54:21",
-    },
-  ];
   const [isPopOverOpen, setIsPopOverOpen] = useState(false);
   const [editions, setEditions] = useState<Edition[]>([]);
 
   const handleAddEdition = async () => {
-    // refresh league list
-    // const updatedLeagues = [...leagues];
-    // updatedLeagues.unshift(newLeague)
     setEditions(await editionService.getAll());
     setIsPopOverOpen(false);
-    fetchEditions();
-  };
-
-  const fetchEditions = async () => {
-    try {
-      const editions = await editionService.getAll();
-      const leagues = await leagueService.getAll();
-      let newEditions: EditionWithLeagues[] = editions.map((edition) => {
-        const league = leagues.find((league) => league.id === edition.leagueId);
-        return { ...edition, league };
-      });
-      setEditionWithLeagues(newEditions);
-      // setEditions(editions);
-    } catch (error) {
-      console.error("Failed to fetch editions:", error);
-    }
   };
 
   useEffect(() => {
+    const fetchEditions = async () => {
+      try {
+        const editions = await editionService.getAll();
+        const leagues = await leagueService.getAll();
+        let newEditions: EditionWithLeagues[] = editions.map((edition) => {
+          const league = leagues.find(
+            (league) => league.id === edition.leagueId
+          );
+          return { ...edition, league };
+        });
+        setEditionWithLeagues(newEditions);
+        // setEditions(editions);
+      } catch (error) {
+        console.error("Failed to fetch editions:", error);
+      }
+    };
+
     fetchEditions();
-  }, []);
+  }, [editions]);
   return (
     <>
       <div className="w-full m-1">
@@ -75,10 +67,7 @@ export const EditionComponent = () => {
               </PopoverTrigger>
               <PopoverContent>
                 <Card>
-                  <AddEditionForm
-                    handleAddEdition={handleAddEdition}
-                    leagues={leagues}
-                  />
+                  <AddEditionForm handleAddEdition={handleAddEdition} />
                 </Card>
               </PopoverContent>
             </Popover>
@@ -87,7 +76,8 @@ export const EditionComponent = () => {
         <div className="block">
           <EditionTable
             editionWithLeagues={editionWithLeagues}
-            setEditions={setEditions}
+            setEdition={setEditions}
+            editionService={editionService}
           />
         </div>
       </div>

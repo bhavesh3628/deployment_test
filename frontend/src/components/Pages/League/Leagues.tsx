@@ -5,21 +5,24 @@ import {
 } from "@/components/ui/popover";
 
 import { Card } from "@/components/ui/card";
-import AddLeagueForm from "./AddForm.js";
+import AddLeagueForm from "./addForm";
 import { useEffect, useState } from "react";
-import { LeagueTable } from "./LeagueTable.js";
-import { Button } from "../../ui/button.js";
-import leagueService, { League } from "./league.service.js";
+import { LeagueTable } from "./LeagueTable";
+import { Button } from "../../ui/button";
+// import { LeagueContext } from "./LeagueProvider";
+import { useLeagues } from "../AuctionProvider.js";
+import { League } from "./league.service.js";
 
 function LeagueComponent() {
-  // change leagues state on API call success
+  // localStorage.clear();
 
   const [leagues, setLeagues] = useState<League[]>([]);
+  const { leagueService } = useLeagues();
   useEffect(() => {
     const fetchLeagues = async () => {
       try {
-        const leagues = await leagueService.getAll();
-        setLeagues(leagues);
+        const updatedLeagues = await leagueService.getAll();
+        setLeagues(updatedLeagues);
       } catch (error) {
         console.error("Failed to fetch leagues:", error);
       }
@@ -31,17 +34,9 @@ function LeagueComponent() {
   const [isPopoverOpen, setPopover] = useState(false);
 
   const handleAddLeague = async () => {
-    // refresh league list
-    // const updatedLeagues = [...leagues];
-    // updatedLeagues.unshift(newLeague)
-    setLeagues(await leagueService.getAll());
+    setLeagues!(await leagueService!.getAll());
     setPopover(false);
   };
-
-  useEffect(() => {
-    localStorage.setItem("leagues", JSON.stringify(leagues));
-  }, [leagues]);
-
   return (
     <div className="w-full m-1">
       <div className="flex flex-row justify-between">
@@ -55,16 +50,15 @@ function LeagueComponent() {
             </PopoverTrigger>
             <PopoverContent>
               <Card>
-                <AddLeagueForm handleAddLeague={handleAddLeague} leagueService={leagueService} />
+                <AddLeagueForm handleAddLeague={handleAddLeague} />
               </Card>
             </PopoverContent>
           </Popover>
         </div>
       </div>
       <div className="block">
-        <LeagueTable leagues={leagues} setLeagues={setLeagues} leagueService={leagueService} />
+        <LeagueTable leagues={leagues} setLeagues={setLeagues} />
       </div>
-      {/* <LeagueListCards leagues={leagues} /> */}
     </div>
   );
 }

@@ -14,8 +14,7 @@ import {
 
 import { Input } from "../../ui/input.js";
 import { Button } from "../../ui/button.js";
-import { useEffect, useState } from "react";
-import leagueService, { League } from "./league.service";
+import { EditOneLeagueService, League } from "./league.service";
 
 const formSchema = z.object({
   name: z
@@ -25,19 +24,15 @@ const formSchema = z.object({
 });
 type EditLeagueProps = {
   handleEditLeague: (id: number, editedName: string) => void;
+  leagueService: EditOneLeagueService;
   currentLeague: League;
 };
 
 const EditLeagueForm = ({
   handleEditLeague,
   currentLeague,
+  leagueService,
 }: EditLeagueProps) => {
-  // const [editedLeague, setEditedLeague] = useState<League>({
-  //   name: "",
-  //   id: 0,
-  //   editions: [],
-  //   createdAt: "",
-  // });
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -51,9 +46,8 @@ const EditLeagueForm = ({
       currentLeague.id,
       values.name
     );
-    // console.log(editedLeague);
+
     handleEditLeague(currentLeague.id, editedLeague.name);
-    //  setEditedLeague();
   }
 
   return (
@@ -70,7 +64,6 @@ const EditLeagueForm = ({
                 <Input
                   {...field}
                   placeholder={"Please Enter Edited League Name"}
-                  // value={currentLeague.name}
                 />
               </FormControl>
               <FormDescription>form to add a new league</FormDescription>

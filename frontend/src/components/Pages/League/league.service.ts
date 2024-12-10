@@ -1,20 +1,29 @@
-import { Edition } from "../../../../../Edition/editionService";
+import { Edition } from "../edition/edition.service";
 import { CreateLeagueDTO } from "./types";
 
-export interface LeagueService {
-  addOne(league:CreateLeagueDTO): Promise<League>
-  editOne(leagueId: number, editedName: string): Promise<League>
-}
+export interface LeagueService
+  extends GetAllLeagueService,
+    AddOneLeagueService,
+    DeleteOneLeagueService,
+    EditOneLeagueService {}
 
 export interface GetAllLeagueService {
-  getAll() :Promise<League[]>;
+  getAll(): Promise<League[]>;
 }
 
 export interface DeleteOneLeagueService {
-  deleteOne(id:number): Promise<void>
+  deleteOne(id: number): Promise<void>;
 }
 
-export class LocallyStoredLeagueService {
+export interface EditOneLeagueService {
+  editOne(id: number, editedName: string): Promise<League>;
+}
+
+export interface AddOneLeagueService {
+  addOne(leagueDTO: CreateLeagueDTO): Promise<League>;
+}
+
+export class LocallyStoredLeagueService implements LeagueService {
   async getAll() {
     const leagues = localStorage.getItem("leagues");
 
@@ -25,6 +34,7 @@ export class LocallyStoredLeagueService {
 
   async addOne(league: CreateLeagueDTO) {
     const newLeague: League = new League(league);
+    console.log(newLeague);
     const leagues = await this.getAll();
 
     localStorage.setItem("leagues", JSON.stringify([...leagues, newLeague]));
