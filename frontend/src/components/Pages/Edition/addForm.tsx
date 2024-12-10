@@ -27,6 +27,7 @@ import {
 import { CreateEditionDTO } from "./types.js";
 import editionService from "./edition.service.js";
 import { useLeagues } from "../AuctionProvider.js";
+import { log } from "console";
 
 const formSchema = z.object({
   name: z
@@ -55,8 +56,8 @@ const AddEditionForm = ({ handleAddEdition }: AddEditionProps) => {
   });
 
   useEffect(() => {
+    let { leagueService } = useLeagues();
     const fetchLeagues = async () => {
-      let { leagueService } = useLeagues();
       try {
         leagues = await leagueService.getAll();
       } catch (error) {
@@ -65,6 +66,7 @@ const AddEditionForm = ({ handleAddEdition }: AddEditionProps) => {
     };
 
     fetchLeagues();
+    console.log(leagues);
   }, []);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {

@@ -77,7 +77,6 @@ export const EditionComponent = () => {
           <EditionTable
             editionWithLeagues={editionWithLeagues}
             setEdition={setEditions}
-            editionService={editionService}
           />
         </div>
       </div>

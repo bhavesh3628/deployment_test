@@ -1,12 +1,6 @@
-import { createContext, useContext, useState } from "react";
-import leagueService, {
-  League,
-  LeagueService,
-} from "./league/league.service.js";
-import editionService, {
-  Edition,
-  EditionService,
-} from "./edition/edition.service.js";
+import { createContext, useContext } from "react";
+import leagueService, { LeagueService } from "./league/league.service.js";
+import editionService, { EditionService } from "./edition/edition.service.js";
 
 interface AuctionContextInterface {
   leagueService?: LeagueService;
@@ -34,6 +28,14 @@ export const useLeagues = () => {
   const { leagueService } = useContext(
     AuctionContext
   ) as AuctionContextInterface;
-  if (!leagueService) throw new Error("Context not found");
+  if (!leagueService) throw new Error("League Context not found");
   return { leagueService };
+};
+
+export const useEditions = () => {
+  const { editionService } = useContext(
+    AuctionContext
+  ) as AuctionContextInterface;
+  if (!editionService) throw new Error("Edition Context not found");
+  return { editionService };
 };

@@ -1,9 +1,4 @@
-import {
-  DeleteOneEditionService,
-  Edition,
-  EditOneEditionService,
-  GetAllEditionService,
-} from "./edition.service";
+import { Edition } from "./edition.service";
 import {
   Table,
   TableBody,
@@ -25,21 +20,20 @@ import { Card } from "@/components/ui/card.js";
 import { useState } from "react";
 import EditLeagueForm from "./EditForm.js";
 import { EditionWithLeagues } from "./Edition.js";
+import { useEditions } from "../AuctionProvider.js";
 
 type EditionTableProps = {
   editionWithLeagues: EditionWithLeagues[];
   setEdition: (editions: Edition[]) => void;
-  editionService: GetAllEditionService &
-    DeleteOneEditionService &
-    EditOneEditionService;
 };
 
 export const EditionTable = ({
   editionWithLeagues,
   setEdition,
-  editionService,
 }: EditionTableProps) => {
   const [editPopoverId, setEditPopoverId] = useState<number>();
+
+  const { editionService } = useEditions();
 
   const handleEditEdition = async () => {
     setEdition(await editionService.getAll());
