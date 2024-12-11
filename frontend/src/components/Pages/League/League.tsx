@@ -4,18 +4,14 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-import { Card } from "@/components/ui/card";
-import AddLeagueForm from "./addForm";
+import AddLeagueForm from "./AddForm.js";
 import { useEffect, useState } from "react";
-import { LeagueTable } from "./LeagueTable";
-import { Button } from "../../ui/button";
-// import { LeagueContext } from "./LeagueProvider";
+import { LeagueTable } from "./LeagueTable.js";
+import { Button } from "../../ui/button.js";
 import { useLeagues } from "../AuctionProvider.js";
 import { League } from "./league.service.js";
 
 function LeagueComponent() {
-  // localStorage.clear();
-
   const [leagues, setLeagues] = useState<League[]>([]);
   const { leagueService } = useLeagues();
   useEffect(() => {
@@ -34,11 +30,11 @@ function LeagueComponent() {
   const [isPopoverOpen, setPopover] = useState(false);
 
   const handleAddLeague = async () => {
-    setLeagues!(await leagueService!.getAll());
+    setLeagues(await leagueService.getAll());
     setPopover(false);
   };
   return (
-    <div className="w-full m-1">
+    <div className="w-full m-4">
       <div className="flex flex-row justify-between">
         <h1 className="flex justify-start text-xl font-bold">
           League Management
@@ -48,10 +44,8 @@ function LeagueComponent() {
             <PopoverTrigger>
               <Button>Add League</Button>
             </PopoverTrigger>
-            <PopoverContent>
-              <Card>
-                <AddLeagueForm handleAddLeague={handleAddLeague} />
-              </Card>
+            <PopoverContent className="mr-4">
+              <AddLeagueForm handleAddLeague={handleAddLeague} />
             </PopoverContent>
           </Popover>
         </div>

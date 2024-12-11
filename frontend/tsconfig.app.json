@@ -26,5 +26,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src", "tests/LeagueTable.test.tsx"]
+  "include": ["src", "tests/LeagueTable.test.tsx", "../Franchise/Franchise.ts"]
 }

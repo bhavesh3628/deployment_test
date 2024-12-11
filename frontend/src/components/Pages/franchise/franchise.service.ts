@@ -1,5 +1,5 @@
-import { Team } from "./Team/team.js";
-import { CreateFranchiseDTO, EditFranchiseDTO } from "./Types.js";
+import { Team } from "./team/team.js";
+import { CreateFranchiseDTO, EditFranchiseDTO } from "./types.js";
 
 export interface AddOneFranchiseService {
   addOne(franchiseDTO: CreateFranchiseDTO): Promise<Franchise>;
@@ -72,7 +72,7 @@ export class LocallyStoredFranchiseService implements FranchiseService {
   }
 }
 
-class Franchise {
+export class Franchise {
   private static counter: number = 0;
   public readonly id: number;
   public readonly name: string;

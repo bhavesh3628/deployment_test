@@ -5,24 +5,30 @@ import {
   DeleteOneLeagueService,
   EditOneLeagueService,
   GetAllLeagueService,
+  AddOneLeagueService,
 } from "@/components/Pages/league/league.service";
 import { League } from "../src/components/Pages/league/league.service";
 import { CreateLeagueDTO } from "../../League/Types";
+import { AuctionProvider } from "@/components/Pages/AuctionProvider";
+import { Edition } from "@/components/Pages/edition/edition.service";
 
-class SuccessLeagueService
-  implements GetAllLeagueService, DeleteOneLeagueService, EditOneLeagueService
-{
-  // should be initialized with existung leagues
+export interface TestLeagueInterface
+  extends GetAllLeagueService,
+    AddOneLeagueService,
+    DeleteOneLeagueService,
+    EditOneLeagueService {}
+
+export class SuccessLeagueService implements TestLeagueInterface {
+  // should be initialized with existing leagues
   private leagues: League[] = [];
-
   getAll(): Promise<League[]> {
     return Promise.resolve(this.leagues);
   }
 
-  addOne(createLeagueDTO: CreateLeagueDTO) {
+  addOne(createLeagueDTO: CreateLeagueDTO): Promise<League> {
     let newLeague = new League(createLeagueDTO);
     this.leagues = [...this.leagues, newLeague];
-    return newLeague;
+    return Promise.resolve(newLeague);
   }
 
   deleteOne(id: number): Promise<void> {
@@ -36,40 +42,44 @@ class SuccessLeagueService
     league.name = editedName;
     return Promise.resolve(league);
   }
+
+  addEdition(edition: Edition): Promise<void> {
+    return Promise.resolve();
+  }
+
+  xyz(updatedLeagues: League[]) {
+    console.log(updatedLeagues);
+  }
 }
 
-describe("Register component", () => {
-  let testService: SuccessLeagueService;
+export const testService = new SuccessLeagueService();
+
+describe("League Table component", () => {
+  let leagueService: SuccessLeagueService;
   beforeEach(() => {
-    testService = new SuccessLeagueService();
+    leagueService = new SuccessLeagueService();
   });
   it("should render table component correctly", async () => {
-    let leagues: League[] = await testService.getAll();
-    const setLeagues = (updatedLeagues: League[]) => {
-      leagues = updatedLeagues;
-    };
     render(
-      <LeagueTable
-        leagues={leagues}
-        setLeagues={setLeagues}
-        leagueService={testService}
-      />
+      <AuctionProvider value={{ leagueService }}>
+        <LeagueTable
+          leagues={await leagueService.getAll()}
+          setLeagues={leagueService.xyz}
+        />
+      </AuctionProvider>
     );
     const table = screen.getByRole("table");
     expect(table).toBeInTheDocument();
   });
 
   it("should render table intially with no leagues added text in first row ", async () => {
-    let leagues: League[] = await testService.getAll();
-    const setLeagues = (updatedLeagues: League[]) => {
-      leagues = updatedLeagues;
-    };
     render(
-      <LeagueTable
-        leagues={leagues}
-        setLeagues={setLeagues}
-        leagueService={testService}
-      />
+      <AuctionProvider value={{ leagueService }}>
+        <LeagueTable
+          leagues={await leagueService.getAll()}
+          setLeagues={leagueService.xyz}
+        />
+      </AuctionProvider>
     );
     const table = screen.getByRole("table");
     expect(table).toBeInTheDocument();
@@ -90,11 +100,12 @@ describe("Register component", () => {
       leagues = updatedLeagues;
     };
     render(
-      <LeagueTable
-        leagues={leagues}
-        setLeagues={setLeagues}
-        leagueService={testService}
-      />
+      <AuctionProvider value={{ leagueService }}>
+        <LeagueTable
+          leagues={await leagueService.getAll()}
+          setLeagues={leagueService.xyz}
+        />
+      </AuctionProvider>
     );
     const table = screen.getByRole("table");
     expect(table).toBeInTheDocument();
@@ -111,11 +122,12 @@ describe("Register component", () => {
     };
 
     render(
-      <LeagueTable
-        leagues={leagues}
-        setLeagues={setLeagues}
-        leagueService={testService}
-      />
+      <AuctionProvider value={{ leagueService }}>
+        <LeagueTable
+          leagues={await leagueService.getAll()}
+          setLeagues={leagueService.xyz}
+        />
+      </AuctionProvider>
     );
 
     // const table = screen.getByRole("table");
@@ -133,13 +145,13 @@ describe("Register component", () => {
     setLeagues(updatedLeagues);
 
     render(
-      <LeagueTable
-        leagues={leagues}
-        setLeagues={setLeagues}
-        leagueService={testService}
-      />
+      <AuctionProvider value={{ leagueService }}>
+        <LeagueTable
+          leagues={await leagueService.getAll()}
+          setLeagues={leagueService.xyz}
+        />
+      </AuctionProvider>
     );
-
     const cell = await screen.getByText("IPL");
     expect(cell).toBeInTheDocument();
 
@@ -166,11 +178,12 @@ describe("Register component", () => {
     };
 
     render(
-      <LeagueTable
-        leagues={leagues}
-        setLeagues={setLeagues}
-        leagueService={testService}
-      />
+      <AuctionProvider value={{ leagueService }}>
+        <LeagueTable
+          leagues={await leagueService.getAll()}
+          setLeagues={leagueService.xyz}
+        />
+      </AuctionProvider>
     );
     let iplDTO = { name: "IPL" };
     let ipl = await testService.addOne(iplDTO);
@@ -181,11 +194,12 @@ describe("Register component", () => {
     setLeagues(updatedLeagues);
 
     render(
-      <LeagueTable
-        leagues={leagues}
-        setLeagues={setLeagues}
-        leagueService={testService}
-      />
+      <AuctionProvider value={{ leagueService }}>
+        <LeagueTable
+          leagues={await leagueService.getAll()}
+          setLeagues={leagueService.xyz}
+        />
+      </AuctionProvider>
     );
 
     const cell = screen.getByText("IPL");
@@ -211,11 +225,12 @@ describe("Register component", () => {
       (league) => league.id === ipl.id
     );
     render(
-      <LeagueTable
-        leagues={await testService.getAll()}
-        setLeagues={setLeagues}
-        leagueService={testService}
-      />
+      <AuctionProvider value={{ leagueService }}>
+        <LeagueTable
+          leagues={await leagueService.getAll()}
+          setLeagues={leagueService.xyz}
+        />
+      </AuctionProvider>
     );
     await screen.getByText("IPL2024");
 

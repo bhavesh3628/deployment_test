@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "test-ct": "playwright test -c playwright-ct.config.ts",
     "test": "playwright test -c playwright.config.ts --headed",
-    "test-rtl": "vitest"
+    "vitest": "vitest"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.7.1",
@@ -29,6 +29,7 @@
     "@radix-ui/react-separator": "^1.1.0",
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-tooltip": "^1.1.4",
+    "axios": "^1.7.9",
     "bootstrap": "^5.2.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

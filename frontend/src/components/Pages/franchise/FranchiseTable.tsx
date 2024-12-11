@@ -1,4 +1,3 @@
-import { Edition } from "./edition.service";
 import {
   Table,
   TableBody,
@@ -10,7 +9,7 @@ import {
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare, faTrash } from "@fortawesome/free-solid-svg-icons";
-import { Button } from "../../ui/button.js";
+import { Button } from "../../ui/button.jsx";
 import {
   Popover,
   PopoverContent,
@@ -18,31 +17,31 @@ import {
 } from "@/components/ui/popover.js";
 import { Card } from "@/components/ui/card.js";
 import { useState } from "react";
-import EditLeagueForm from "./EditForm.js";
-import { EditionWithLeagues } from "./Edition.js";
-import { useEditions } from "../AuctionProvider.js";
+import { Franchise } from "./franchise.service.js";
+import { useFranchises } from "../AuctionProvider.jsx";
+import EditFranchiseForm from "./EditForm.js";
 
-type EditionTableProps = {
-  editionWithLeagues: EditionWithLeagues[];
-  setEdition: (editions: Edition[]) => void;
+type FranchiseTableProps = {
+  franchises: Franchise[];
+  setFranchises: (franchises: Franchise[]) => void;
 };
 
-export const EditionTable = ({
-  editionWithLeagues,
-  setEdition: setEditions,
-}: EditionTableProps) => {
+export const FranchiseTable = ({
+  franchises,
+  setFranchises,
+}: FranchiseTableProps) => {
   const [editPopoverId, setEditPopoverId] = useState<number>();
   const [deletePopoverId, setDeletePopoverId] = useState<number>();
-  const { editionService } = useEditions();
+  const { franchiseService } = useFranchises();
 
-  const handleEditEdition = async () => {
-    setEditions(await editionService.getAll());
+  const handleEditFranchise = async () => {
+    setFranchises(await franchiseService.getAll());
     setEditPopoverId(undefined);
   };
 
-  const handleDeleteEdition = async (editionId: number) => {
-    await editionService.deleteOne(editionId);
-    setEditions(await editionService.getAll());
+  const handleDeleteFranchise = async (franchiseId: number) => {
+    await franchiseService.deleteOne(franchiseId);
+    setFranchises(await franchiseService.getAll());
     setDeletePopoverId(undefined);
   };
 
@@ -51,26 +50,26 @@ export const EditionTable = ({
       <TableHeader>
         <TableRow>
           <TableHead>Sr No.</TableHead>
-          <TableHead>LEAGUE</TableHead>
-          <TableHead>NAME</TableHead>
+          <TableHead>FRANCHISE</TableHead>
+          <TableHead>CITY</TableHead>
           <TableHead>ACTIONS</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {editionWithLeagues.length > 0 ? (
+        {franchises.length > 0 ? (
           <>
-            {editionWithLeagues.map((edition, key) => (
+            {franchises.map((franchise, key) => (
               <TableRow key={key}>
                 <TableCell>{key + 1}</TableCell>
-                <TableCell>{edition.league?.name}</TableCell>
-                <TableCell>{edition.name}</TableCell>
+                <TableCell>{franchise.name}</TableCell>
+                <TableCell>{franchise.city}</TableCell>
                 <TableCell>
                   <Popover
                     // key={key}
-                    open={editPopoverId === edition.id}
+                    open={editPopoverId === franchise.id}
                     onOpenChange={(open: boolean) => {
                       console.log("open", open);
-                      setEditPopoverId(open ? edition.id : undefined);
+                      setEditPopoverId(open ? franchise.id : undefined);
                     }}
                   >
                     <PopoverTrigger>
@@ -80,9 +79,9 @@ export const EditionTable = ({
                     </PopoverTrigger>
                     <PopoverContent>
                       <Card>
-                        <EditLeagueForm
-                          currentEdition={edition}
-                          handleEditEdition={handleEditEdition}
+                        <EditFranchiseForm
+                          currentFranchise={franchise}
+                          handleEditFranchise={handleEditFranchise}
                         />
                       </Card>
                     </PopoverContent>
@@ -90,10 +89,10 @@ export const EditionTable = ({
                   &nbsp;
                   <Popover
                     // key={key + "Delete"}
-                    open={deletePopoverId === edition.id}
+                    open={deletePopoverId === franchise.id}
                     onOpenChange={(open: boolean) => {
                       console.log("open", open);
-                      setDeletePopoverId(open ? edition.id : undefined);
+                      setDeletePopoverId(open ? franchise.id : undefined);
                     }}
                   >
                     <PopoverTrigger>
@@ -105,13 +104,13 @@ export const EditionTable = ({
                       <Card>
                         <p className="m-2">
                           Are you sure you want to delete{" "}
-                          <strong>{edition.name}?</strong>
+                          <strong>{franchise.name}?</strong>
                         </p>
                         <Button
                           className="ml-20 mb-2"
                           onClick={async () => {
-                            await editionService.deleteOne(edition.id);
-                            handleDeleteEdition(edition.id);
+                            await franchiseService.deleteOne(franchise.id);
+                            handleDeleteFranchise(franchise.id);
                           }}
                         >
                           Confirm
@@ -125,7 +124,7 @@ export const EditionTable = ({
           </>
         ) : (
           <TableRow>
-            <TableCell colSpan={4}>No editions added</TableCell>
+            <TableCell colSpan={4}>No Franchises added</TableCell>
           </TableRow>
         )}
       </TableBody>

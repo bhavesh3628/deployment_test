@@ -8,7 +8,6 @@ import {
   FormItem,
   FormLabel,
   FormControl,
-  FormDescription,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "../../ui/input.js";
@@ -53,9 +52,8 @@ const AddLeagueForm = ({ handleAddLeague }: AddLeagueFormProps) => {
             <FormItem>
               <FormLabel>League</FormLabel>
               <FormControl>
-                <Input placeholder="enter league name" {...field} />
+                <Input placeholder="Enter league name" {...field} />
               </FormControl>
-              <FormDescription>form to add a new league</FormDescription>
               <FormMessage />
             </FormItem>
           )}

@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import {
   Popover,
   PopoverContent,
@@ -20,7 +19,7 @@ export type EditionWithLeagues = {
   auctionId?: number;
 };
 
-export const EditionComponent = () => {
+const EditionComponent = () => {
   const { leagueService } = useLeagues();
   let [editionWithLeagues, setEditionWithLeagues] = useState<
     EditionWithLeagues[]
@@ -55,7 +54,7 @@ export const EditionComponent = () => {
   }, [editions]);
   return (
     <>
-      <div className="w-full m-1">
+      <div className="w-full m-4">
         <div className="flex flex-row justify-between">
           <h1 className="flex justify-start text-xl font-bold">
             Edition Management
@@ -65,10 +64,8 @@ export const EditionComponent = () => {
               <PopoverTrigger>
                 <Button>Add Edition</Button>
               </PopoverTrigger>
-              <PopoverContent>
-                <Card>
-                  <AddEditionForm handleAddEdition={handleAddEdition} />
-                </Card>
+              <PopoverContent className="mr-4">
+                <AddEditionForm handleAddEdition={handleAddEdition} />
               </PopoverContent>
             </Popover>
           </div>
@@ -83,4 +80,4 @@ export const EditionComponent = () => {
     </>
   );
 };
-export { Edition };
+export default EditionComponent;

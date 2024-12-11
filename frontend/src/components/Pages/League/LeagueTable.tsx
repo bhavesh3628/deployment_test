@@ -46,6 +46,7 @@ export const LeagueTable = ({ leagues, setLeagues }: LeagueTableProps) => {
         <TableRow>
           <TableHead>Sr No.</TableHead>
           <TableHead>NAME</TableHead>
+          {/* <TableHead>EDITIONS</TableHead> */}
           <TableHead>CREATED AT</TableHead>
           <TableHead>ACTIONS</TableHead>
         </TableRow>
@@ -57,7 +58,9 @@ export const LeagueTable = ({ leagues, setLeagues }: LeagueTableProps) => {
               <TableRow>
                 <TableCell>{key + 1}</TableCell>
                 <TableCell>{league.name}</TableCell>
+                {/* <TableCell>{league.editions.length}</TableCell> */}
                 <TableCell>{league.createdAt}</TableCell>
+
                 <TableCell>
                   <Popover
                     key={key} // league.id crashes edit and delete ui

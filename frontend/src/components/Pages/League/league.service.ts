@@ -1,11 +1,12 @@
 import { Edition } from "../edition/edition.service";
 import { CreateLeagueDTO } from "./types";
-
+import axios from "axios";
 export interface LeagueService
   extends GetAllLeagueService,
     AddOneLeagueService,
     DeleteOneLeagueService,
-    EditOneLeagueService {}
+    EditOneLeagueService,
+    AddEditionLeagueService {}
 
 export interface GetAllLeagueService {
   getAll(): Promise<League[]>;
@@ -21,6 +22,57 @@ export interface EditOneLeagueService {
 
 export interface AddOneLeagueService {
   addOne(leagueDTO: CreateLeagueDTO): Promise<League>;
+}
+
+export interface AddEditionLeagueService {
+  addEdition(edition: Edition): Promise<void>;
+}
+
+export class RestLeagueService implements LeagueService {
+  async getAll(): Promise<League[]> {
+    const { data } = await axios.get("http://localhost:3000/leagues");
+    return data;
+  }
+  async addOne(league: CreateLeagueDTO) {
+    const newLeague: League = new League(league);
+    console.log(newLeague);
+    const leagues = await this.getAll();
+
+    localStorage.setItem("leagues", JSON.stringify([...leagues, newLeague]));
+
+    return newLeague;
+  }
+
+  async deleteOne(id: number) {
+    const leagues = await this.getAll();
+    localStorage.setItem(
+      "leagues",
+      JSON.stringify(leagues.filter((league) => league.id !== id))
+    );
+  }
+
+  async editOne(leagueId: number, editedName: string) {
+    const leagues = await this.getAll();
+    const leagueToEdit = leagues.find((league) => league.id === leagueId);
+
+    if (leagueToEdit) {
+      leagueToEdit.name = editedName;
+      localStorage.setItem("leagues", JSON.stringify([...leagues]));
+      return Promise.resolve(leagueToEdit);
+    }
+
+    return Promise.reject("League not found");
+  }
+
+  async addEdition(edition: Edition): Promise<void> {
+    const leagues = await this.getAll();
+    const league = leagues.find((league) => league.id === edition.leagueId);
+    if (!league) return Promise.reject("League not found");
+
+    league.editions = [...league.editions, edition];
+
+    localStorage.setItem("leagues", JSON.stringify([...leagues]));
+  }
 }
 
 export class LocallyStoredLeagueService implements LeagueService {
@@ -62,6 +114,16 @@ export class LocallyStoredLeagueService implements LeagueService {
 
     return Promise.reject("League not found");
   }
+
+  async addEdition(edition: Edition): Promise<void> {
+    const leagues = await this.getAll();
+    const league = leagues.find((league) => league.id === edition.leagueId);
+    if (!league) return Promise.reject("League not found");
+
+    league.editions = [...league.editions, edition];
+
+    localStorage.setItem("leagues", JSON.stringify([...leagues]));
+  }
 }
 
 export class League {
@@ -79,5 +141,5 @@ export class League {
     this.createdAt = new Date().toLocaleString();
   }
 }
-const leagueService = new LocallyStoredLeagueService();
+const leagueService = new RestLeagueService();
 export default leagueService;
