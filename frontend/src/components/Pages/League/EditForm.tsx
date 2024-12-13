@@ -15,6 +15,7 @@ import {
 import { Input } from "../../ui/input.js";
 import { Button } from "../../ui/button.js";
 import { EditOneLeagueService, League } from "./league.service";
+import { UpdateLeagueDTO } from "./types.js";
 
 const formSchema = z.object({
   name: z
@@ -42,9 +43,10 @@ const EditLeagueForm = ({
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log({ currentLeague, values });
+    const editLeagueDTO: UpdateLeagueDTO = { name: values.name };
     const editedLeague = await leagueService.editOne(
       currentLeague.id,
-      values.name
+      editLeagueDTO
     );
 
     handleEditLeague(currentLeague.id, editedLeague.name);

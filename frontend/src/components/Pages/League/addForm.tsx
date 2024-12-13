@@ -39,7 +39,7 @@ const AddLeagueForm = ({ handleAddLeague }: AddLeagueFormProps) => {
       name: values.name,
     };
 
-    await leagueService?.addOne(newLeagueDTO);
+    await leagueService.addOne(newLeagueDTO);
     handleAddLeague();
   }
   return (

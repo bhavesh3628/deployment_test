@@ -1,26 +1,43 @@
 import { Injectable } from '@nestjs/common';
 import { CreateEditionDTO } from './dto/create-edition.dto';
-import { UpdateEditionDto } from './dto/update-edition.dto';
+import { UpdateEditionDTO } from './dto/update-edition.dto';
+import { Edition } from './entities/edition.entity';
 
 @Injectable()
-export class EditionsService {
-  create(createEditionDto: CreateEditionDTO) {
-    return 'This action adds a new edition';
+export class EditionService {
+  private editions: Edition[] = [];
+
+  async create(createEditionDTO: CreateEditionDTO) {
+    const newEdition = new Edition(createEditionDTO);
+    this.editions = [...this.editions, newEdition];
+    return Promise.resolve<Edition>(newEdition);
   }
 
-  findAll() {
-    return `This action returns all editions`;
+  async getAll() {
+    return Promise.resolve<Edition[]>(this.editions);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} edition`;
+  async findOne(id: number) {
+    const edition = this.editions.find((edition) => edition.id === id);
+    console.log('inside findOne', edition);
+    if (edition) return Promise.resolve<Edition>(edition);
+    throw new Error(`Edition with id: ${id} does not exist!`);
   }
 
-  update(id: number, updateEditionDto: UpdateEditionDto) {
-    return `This action updates a #${id} edition`;
+  async edit(id: number, updateEditionDTO: UpdateEditionDTO) {
+    const editionToEdit = await this.findOne(id);
+    editionToEdit.name = updateEditionDTO.name;
+    console.log(editionToEdit);
+    return Promise.resolve(editionToEdit);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} edition`;
+  async delete(id: number) {
+    let edition = await this.findOne(id);
+    console.log('edition', edition);
+    this.editions = this.editions.filter(
+      (currentEdition) => currentEdition.id !== edition.id,
+    );
+    console.log(this.editions);
+    return Promise.resolve(`Edition with id: ${id} deleted`);
   }
 }

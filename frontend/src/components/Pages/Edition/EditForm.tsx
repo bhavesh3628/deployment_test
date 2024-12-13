@@ -15,6 +15,7 @@ import {
 import { Input } from "../../ui/input.js";
 import { Button } from "../../ui/button.js";
 import editionService, { Edition } from "./edition.service";
+import { UpdateEditionDTO } from "./types.js";
 
 const formSchema = z.object({
   name: z
@@ -40,9 +41,10 @@ const EditEditionForm = ({
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log({ currentEdition, values });
+    const editDto: UpdateEditionDTO = { name: values.name };
     const editedEdition = await editionService.editOne(
       currentEdition.id,
-      values.name
+      editDto
     );
     handleEditEdition(currentEdition.id, editedEdition.name);
   }

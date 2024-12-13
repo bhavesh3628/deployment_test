@@ -7,22 +7,22 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
-import { EditionsService } from './editions.service';
+import { EditionService } from './editions.service';
 import { CreateEditionDTO } from './dto/create-edition.dto';
-import { UpdateEditionDto } from './dto/update-edition.dto';
+import { UpdateEditionDTO } from './dto/update-edition.dto';
 
 @Controller('editions')
 export class EditionsController {
-  constructor(private readonly editionsService: EditionsService) {}
+  constructor(private readonly editionsService: EditionService) {}
 
   @Post()
-  create(@Body() createEditionDto: CreateEditionDTO) {
-    return this.editionsService.create(createEditionDto);
+  async create(@Body() createEditionDto: CreateEditionDTO) {
+    return await this.editionsService.create(createEditionDto);
   }
 
   @Get()
   findAll() {
-    return this.editionsService.findAll();
+    return this.editionsService.getAll();
   }
 
   @Get(':id')
@@ -31,12 +31,12 @@ export class EditionsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateEditionDto: UpdateEditionDto) {
-    return this.editionsService.update(+id, updateEditionDto);
+  update(@Param('id') id: string, @Body() updateEditionDTO: UpdateEditionDTO) {
+    return this.editionsService.edit(+id, updateEditionDTO);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.editionsService.remove(+id);
+  async remove(@Param('id') id: string) {
+    return await this.editionsService.delete(+id);
   }
 }

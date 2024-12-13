@@ -1,14 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { LeaguesController } from './leagues.controller';
-import { LeaguesService } from './leagues.service';
+import { BackendLeagueService, LeagueService } from './leagues.service';
 
 describe('LeaguesController', () => {
   let controller: LeaguesController;
+  let leagueService: BackendLeagueService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [LeaguesController],
-      providers: [LeaguesService],
+      providers: [LeagueService],
     }).compile();
 
     controller = module.get<LeaguesController>(LeaguesController);

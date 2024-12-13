@@ -1,5 +1,5 @@
 import { Edition } from "../edition/edition.service";
-import { CreateLeagueDTO } from "./types";
+import { CreateLeagueDTO, UpdateLeagueDTO } from "./types";
 import axios from "axios";
 export interface LeagueService
   extends GetAllLeagueService,
@@ -17,7 +17,7 @@ export interface DeleteOneLeagueService {
 }
 
 export interface EditOneLeagueService {
-  editOne(id: number, editedName: string): Promise<League>;
+  editOne(id: number, editedName: UpdateLeagueDTO): Promise<League>;
 }
 
 export interface AddOneLeagueService {
@@ -33,35 +33,26 @@ export class RestLeagueService implements LeagueService {
     const { data } = await axios.get("http://localhost:3000/leagues");
     return data;
   }
-  async addOne(league: CreateLeagueDTO) {
-    const newLeague: League = new League(league);
-    console.log(newLeague);
-    const leagues = await this.getAll();
-
-    localStorage.setItem("leagues", JSON.stringify([...leagues, newLeague]));
-
+  async addOne(league: CreateLeagueDTO): Promise<League> {
+    const newLeague: League = await axios.post(
+      "http://localhost:3000/leagues",
+      league
+    );
     return newLeague;
   }
 
-  async deleteOne(id: number) {
-    const leagues = await this.getAll();
-    localStorage.setItem(
-      "leagues",
-      JSON.stringify(leagues.filter((league) => league.id !== id))
-    );
+  async deleteOne(id: number): Promise<void> {
+    await axios.delete(`http://localhost:3000/leagues/${id}`);
   }
 
-  async editOne(leagueId: number, editedName: string) {
-    const leagues = await this.getAll();
-    const leagueToEdit = leagues.find((league) => league.id === leagueId);
-
-    if (leagueToEdit) {
-      leagueToEdit.name = editedName;
-      localStorage.setItem("leagues", JSON.stringify([...leagues]));
-      return Promise.resolve(leagueToEdit);
-    }
-
-    return Promise.reject("League not found");
+  async editOne(id: number, updateLeagueDTO: UpdateLeagueDTO): Promise<League> {
+    const editedLeague: League = await axios.patch(
+      `http://localhost:3000/leagues/${id}`,
+      updateLeagueDTO
+    );
+    console.log(editedLeague);
+    console.log("Edited name", name);
+    return Promise.resolve(editedLeague);
   }
 
   async addEdition(edition: Edition): Promise<void> {
@@ -102,12 +93,12 @@ export class LocallyStoredLeagueService implements LeagueService {
     );
   }
 
-  async editOne(leagueId: number, editedName: string) {
+  async editOne(leagueId: number, editedName: UpdateLeagueDTO) {
     const leagues = await this.getAll();
     const leagueToEdit = leagues.find((league) => league.id === leagueId);
 
     if (leagueToEdit) {
-      leagueToEdit.name = editedName;
+      leagueToEdit.name = editedName.name;
       localStorage.setItem("leagues", JSON.stringify([...leagues]));
       return Promise.resolve(leagueToEdit);
     }

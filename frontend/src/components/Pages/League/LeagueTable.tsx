@@ -36,7 +36,7 @@ export const LeagueTable = ({ leagues, setLeagues }: LeagueTableProps) => {
   };
 
   const handleDeleteLeague = async () => {
-    setLeagues(await leagueService!.getAll());
+    setLeagues(await leagueService.getAll());
     setDeletePopover(undefined);
   };
 
@@ -109,7 +109,7 @@ export const LeagueTable = ({ leagues, setLeagues }: LeagueTableProps) => {
                           data-testid="confirm-button"
                           className="ml-20 mb-2"
                           onClick={async () => {
-                            await leagueService!.deleteOne(league.id);
+                            await leagueService.deleteOne(league.id);
                             handleDeleteLeague();
                           }}
                         >

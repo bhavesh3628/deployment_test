@@ -76,6 +76,7 @@ const AddEditionForm = ({ handleAddEdition }: AddEditionProps) => {
     };
     console.log(newEditionDTO);
     const newEdition = await editionService.addOne(newEditionDTO);
+    console.log("new edition", newEdition);
     setEdition(newEdition);
     handleAddEdition(newEdition);
     await leagueService.addEdition(newEdition);

@@ -1,4 +1,5 @@
-import { CreateEditionDTO } from "./types";
+import axios from "axios";
+import { CreateEditionDTO, UpdateEditionDTO } from "./types";
 
 export interface EditionService
   extends GetAllEditionService,
@@ -15,11 +16,37 @@ export interface DeleteOneEditionService {
 }
 
 export interface EditOneEditionService {
-  editOne(id: number, editedName: string): Promise<Edition>;
+  editOne(id: number, editedName: UpdateEditionDTO): Promise<Edition>;
 }
 
 export interface AddOneEditionService {
   addOne(edition: CreateEditionDTO): Promise<Edition>;
+}
+
+export class RestEditionService implements EditionService {
+  async getAll(): Promise<Edition[]> {
+    const { data } = await axios.get("http://localhost:3000/editions");
+    return data;
+  }
+  async addOne(edition: CreateEditionDTO): Promise<Edition> {
+    const newEdition: Edition = await axios.post(
+      "http://localhost:3000/editions",
+      edition
+    );
+    return newEdition;
+  }
+
+  async deleteOne(id: number): Promise<void> {
+    await axios.delete(`http://localhost:3000/editions/${id}`);
+  }
+
+  async editOne(id: number, editedName: UpdateEditionDTO): Promise<Edition> {
+    const editedEdition: Edition = await axios.patch(
+      `http://localhost:3000/editions/${id}`,
+      editedName
+    );
+    return Promise.resolve(editedEdition);
+  }
 }
 
 export class LocallyStoredEditionService implements EditionService {
@@ -55,12 +82,12 @@ export class LocallyStoredEditionService implements EditionService {
     );
   }
 
-  async editOne(id: number, editedName: string) {
+  async editOne(id: number, editedName: UpdateEditionDTO) {
     const editions = await this.getAll();
     const edition = editions.find((edition) => edition.id === id);
 
     if (edition) {
-      edition.name = editedName;
+      edition.name = editedName.name;
       localStorage.setItem("editions", JSON.stringify([...editions]));
       return Promise.resolve(edition);
     }
@@ -101,6 +128,5 @@ export class Edition {
   }
 }
 
-const editionService = new LocallyStoredEditionService();
-
+const editionService = new RestEditionService();
 export default editionService;

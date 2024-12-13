@@ -110,8 +110,7 @@ export const EditionTable = ({
                         <Button
                           className="ml-20 mb-2"
                           onClick={async () => {
-                            await editionService.deleteOne(edition.id);
-                            handleDeleteEdition(edition.id);
+                            await handleDeleteEdition(edition.id);
                           }}
                         >
                           Confirm
