@@ -10,7 +10,6 @@ export class Edition {
   constructor(edition: CreateEditionDTO) {
     this.leagueId = edition.leagueId;
     this.name = edition.name;
-    Edition.counter += 1;
-    this.id = Edition.counter;
+    this.id = edition.id;
   }
 }

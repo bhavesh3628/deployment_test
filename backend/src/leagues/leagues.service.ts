@@ -2,12 +2,18 @@ import { Injectable } from '@nestjs/common';
 import { CreateLeagueDTO } from './dto/create-league.dto';
 import { UpdateLeagueDTO } from './dto/update-league.dto';
 import { League } from './entities/league.entity';
+import { Edition } from 'src/editions/entities/edition.entity';
 
 export interface BackendLeagueService
   extends AddLeagueService,
     EditLeagueService,
     DeleteLeagueService,
-    GetAllLeagueService {}
+    GetAllLeagueService,
+    AddEditionToLeagueService {}
+
+export interface AddEditionToLeagueService {
+  addEdition(edition: Edition): Promise<string>;
+}
 
 export interface AddLeagueService {
   add(league: CreateLeagueDTO): Promise<League>;
@@ -25,8 +31,10 @@ export interface GetAllLeagueService {
 @Injectable()
 export class LeagueService implements BackendLeagueService {
   private leagues: League[] = [];
+  private static counter: number = 1;
 
   async add(league: CreateLeagueDTO) {
+    league.id = LeagueService.counter++;
     const newLeague: League = new League(league);
     this.leagues = [...this.leagues, newLeague];
     return Promise.resolve<League>(newLeague);
@@ -40,6 +48,14 @@ export class LeagueService implements BackendLeagueService {
     const league = this.leagues.find((league) => league.id === id);
     if (league) return Promise.resolve<League>(league);
     throw new Error(`League with id: ${id} does not exist!`);
+  }
+
+  async addEdition(edition: Edition): Promise<string> {
+    const league = await this.findOne(edition.leagueId);
+    league.editions = [...league.editions, edition];
+    return Promise.resolve(
+      `Edition has been added to leagueId ${edition.leagueId}`,
+    );
   }
 
   async edit(id: number, updateLeagueDTO: UpdateLeagueDTO) {
@@ -56,7 +72,4 @@ export class LeagueService implements BackendLeagueService {
     );
     return Promise.resolve(`League with id: ${id} deleted`);
   }
-
-  // async addEdition(edition: Edition){
-  // }
 }

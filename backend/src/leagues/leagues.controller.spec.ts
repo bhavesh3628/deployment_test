@@ -3,38 +3,42 @@ import { LeaguesController } from './leagues.controller';
 import {
   AddLeagueService,
   DeleteLeagueService,
+  EditLeagueService,
   GetAllLeagueService,
   LeagueService,
 } from './leagues.service';
-import axios from 'axios';
 import { CreateLeagueDTO } from './dto/create-league.dto';
-import { NestFactory } from '@nestjs/core/nest-factory';
 import { INestApplication } from '@nestjs/common/interfaces/nest-application.interface';
 import { League } from './entities/league.entity';
 import * as request from 'supertest';
 import { LeaguesModule } from './leagues.module';
 import { UpdateLeagueDTO } from './dto/update-league.dto';
 
-class TestLeagueService
-  implements GetAllLeagueService, AddLeagueService, DeleteLeagueService {
+export class TestLeagueService
+  implements
+    GetAllLeagueService,
+    AddLeagueService,
+    DeleteLeagueService,
+    EditLeagueService
+{
   private leagues: League[] = [
     // { id: 1, name: 'ipl', editions: [], createdAt: 'w' },
   ];
-  private static counter: number = 1
+  private static counter: number = 0;
   getAll(): Promise<League[]> {
     return Promise.resolve(this.leagues);
   }
   add(league: CreateLeagueDTO): Promise<League> {
-    league.id=TestLeagueService.counter++
+    TestLeagueService.counter++;
+    league.id = TestLeagueService.counter;
     const newLeague: League = new League(league);
     this.leagues = [...this.leagues, newLeague];
     return Promise.resolve<League>(newLeague);
   }
 
   async delete(id: number): Promise<string> {
-    
-    let league = await this.findOne(id)
-    
+    let league = await this.findOne(id);
+
     this.leagues = this.leagues.filter(
       (currentLeague) => currentLeague.id !== league.id,
     );
@@ -48,15 +52,16 @@ class TestLeagueService
   }
 
   async edit(id: number, updateLeagueDTO: UpdateLeagueDTO) {
-      const leagueToEdit = await this.findOne(id);
-      leagueToEdit.name = updateLeagueDTO.name;
-      console.log(leagueToEdit);
-      return Promise.resolve(leagueToEdit);
-    }
+    const leagueToEdit = await this.findOne(id);
+    leagueToEdit.name = updateLeagueDTO.name;
+    console.log(leagueToEdit);
+    return Promise.resolve(leagueToEdit);
+  }
 
-    resetLeagues(){
-      this.leagues = []
-    }
+  resetLeagues() {
+    this.leagues = [];
+    TestLeagueService.counter = 0;
+  }
 }
 
 describe('LeaguesController', () => {
@@ -76,8 +81,11 @@ describe('LeaguesController', () => {
     await app.init();
   });
 
-  afterEach( () => {
-    testService.resetLeagues()
+  afterEach(() => {
+    testService.resetLeagues();
+  });
+  afterAll(() => {
+    app.close();
   });
 
   it('should be able to get all leagues', async () => {
@@ -101,15 +109,15 @@ describe('LeaguesController', () => {
       .delete(`/leagues/1`)
       .expect(200)
       .expect('League with id: 1 deleted');
-    return deleted
+    return deleted;
   });
 
-  it("Should be able edit the league", async () => {
+  it('Should be able edit the league', async () => {
     await request(app.getHttpServer()).post('/leagues').send({ name: 'ipl' });
 
     const editedLeague = await request(app.getHttpServer())
-    .patch('/leagues/3')
-    .send({name: 'IPL@'})
-    .expect(200)
-  })
+      .patch('/leagues/1')
+      .send({ name: 'IPL@' })
+      .expect(200);
+  });
 });

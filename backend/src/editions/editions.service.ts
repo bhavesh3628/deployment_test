@@ -2,14 +2,39 @@ import { Injectable } from '@nestjs/common';
 import { CreateEditionDTO } from './dto/create-edition.dto';
 import { UpdateEditionDTO } from './dto/update-edition.dto';
 import { Edition } from './entities/edition.entity';
+import { LeagueService } from 'src/leagues/leagues.service';
+
+export interface BackendEditionService
+  extends AddEditionService,
+    EditEditionService,
+    DeleteEditionService,
+    GetAllEditionService {}
+
+export interface AddEditionService {
+  add(league: CreateEditionDTO): Promise<Edition>;
+}
+export interface EditEditionService {
+  edit(id: number, updateLeagueDTO: UpdateEditionDTO): Promise<Edition>;
+}
+export interface DeleteEditionService {
+  delete(id: number): Promise<string>;
+}
+export interface GetAllEditionService {
+  getAll(): Promise<Edition[]>;
+}
 
 @Injectable()
 export class EditionService {
   private editions: Edition[] = [];
-
-  async create(createEditionDTO: CreateEditionDTO) {
+  private static counter: number = 0;
+  async create(
+    createEditionDTO: CreateEditionDTO,
+    leagueService: LeagueService,
+  ) {
+    createEditionDTO.id = EditionService.counter++;
     const newEdition = new Edition(createEditionDTO);
     this.editions = [...this.editions, newEdition];
+    leagueService.addEdition(newEdition);
     return Promise.resolve<Edition>(newEdition);
   }
 

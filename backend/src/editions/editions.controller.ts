@@ -10,14 +10,27 @@ import {
 import { EditionService } from './editions.service';
 import { CreateEditionDTO } from './dto/create-edition.dto';
 import { UpdateEditionDTO } from './dto/update-edition.dto';
-
+import { LeagueService } from 'src/leagues/leagues.service';
 @Controller('editions')
 export class EditionsController {
-  constructor(private readonly editionsService: EditionService) {}
+  constructor(
+    private readonly editionsService: EditionService,
+    private readonly leagueService: LeagueService,
+  ) {}
 
   @Post()
   async create(@Body() createEditionDto: CreateEditionDTO) {
-    return await this.editionsService.create(createEditionDto);
+    try {
+      await this.leagueService.findOne(createEditionDto.leagueId);
+    } catch (error) {
+      return error.toString();
+    }
+    const addedEdition = await this.editionsService.create(
+      createEditionDto,
+      this.leagueService,
+    );
+    this.leagueService.addEdition(addedEdition);
+    return addedEdition;
   }
 
   @Get()
@@ -37,6 +50,6 @@ export class EditionsController {
 
   @Delete(':id')
   async remove(@Param('id') id: string) {
-    return await this.editionsService.delete(+id);
+    return this.editionsService.delete(+id);
   }
 }

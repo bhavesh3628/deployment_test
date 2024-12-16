@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { LeagueService } from './leagues.service';
 import { CreateLeagueDTO } from './dto/create-league.dto';
-import { League } from './entities/league.entity';
 
 describe('LeaguesService', () => {
   let service: LeagueService;
