@@ -13,29 +13,50 @@ import { INestApplication } from '@nestjs/common/interfaces/nest-application.int
 import { League } from './entities/league.entity';
 import * as request from 'supertest';
 import { LeaguesModule } from './leagues.module';
+import { UpdateLeagueDTO } from './dto/update-league.dto';
 
 class TestLeagueService
-  implements GetAllLeagueService, AddLeagueService, DeleteLeagueService
-{
+  implements GetAllLeagueService, AddLeagueService, DeleteLeagueService {
   private leagues: League[] = [
     // { id: 1, name: 'ipl', editions: [], createdAt: 'w' },
   ];
+  private static counter: number = 1
   getAll(): Promise<League[]> {
     return Promise.resolve(this.leagues);
   }
   add(league: CreateLeagueDTO): Promise<League> {
+    league.id=TestLeagueService.counter++
     const newLeague: League = new League(league);
     this.leagues = [...this.leagues, newLeague];
     return Promise.resolve<League>(newLeague);
   }
 
-  delete(id: number): Promise<string> {
-    let league = this.leagues.find((league) => league.id === id);
+  async delete(id: number): Promise<string> {
+    
+    let league = await this.findOne(id)
+    
     this.leagues = this.leagues.filter(
       (currentLeague) => currentLeague.id !== league.id,
     );
     return Promise.resolve(`League with id: ${id} deleted`);
   }
+
+  findOne(id: number) {
+    const league = this.leagues.find((league) => league.id === id);
+    if (league) return Promise.resolve<League>(league);
+    throw new Error(`League with id: ${id} does not exist!`);
+  }
+
+  async edit(id: number, updateLeagueDTO: UpdateLeagueDTO) {
+      const leagueToEdit = await this.findOne(id);
+      leagueToEdit.name = updateLeagueDTO.name;
+      console.log(leagueToEdit);
+      return Promise.resolve(leagueToEdit);
+    }
+
+    resetLeagues(){
+      this.leagues = []
+    }
 }
 
 describe('LeaguesController', () => {
@@ -55,6 +76,10 @@ describe('LeaguesController', () => {
     await app.init();
   });
 
+  afterEach( () => {
+    testService.resetLeagues()
+  });
+
   it('should be able to get all leagues', async () => {
     return await request(app.getHttpServer())
       .get('/leagues')
@@ -71,14 +96,20 @@ describe('LeaguesController', () => {
 
   it('Should be able to delete new league', async () => {
     await request(app.getHttpServer()).post('/leagues').send({ name: 'ipl' });
-    // request(app.getHttpServer()).get('/leagues');
-    return await request(app.getHttpServer())
-      .delete(`/leagues/${1}`)
+    request(app.getHttpServer()).get('/leagues');
+    const deleted = await request(app.getHttpServer())
+      .delete(`/leagues/1`)
       .expect(200)
       .expect('League with id: 1 deleted');
+    return deleted
   });
 
-  afterAll(async () => {
-    await app.close();
-  });
+  it("Should be able edit the league", async () => {
+    await request(app.getHttpServer()).post('/leagues').send({ name: 'ipl' });
+
+    const editedLeague = await request(app.getHttpServer())
+    .patch('/leagues/3')
+    .send({name: 'IPL@'})
+    .expect(200)
+  })
 });
