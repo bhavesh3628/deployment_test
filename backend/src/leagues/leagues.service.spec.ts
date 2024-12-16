@@ -1,18 +1,27 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { LeaguesService } from './leagues.service';
+import { LeagueService } from './leagues.service';
+import { CreateLeagueDTO } from './dto/create-league.dto';
+import { League } from './entities/league.entity';
 
 describe('LeaguesService', () => {
-  let service: LeaguesService;
+  let service: LeagueService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [LeaguesService],
+      providers: [LeagueService],
     }).compile();
 
-    service = module.get<LeaguesService>(LeaguesService);
+    service = module.get<LeagueService>(LeagueService);
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+  it('should be able to create a new user', async () => {
+    const iplDTO: CreateLeagueDTO = {
+      name: 'IPL',
+    };
+    const ipl = await service.add(iplDTO);
+    expect(ipl.name).toEqual('IPL');
   });
 });
