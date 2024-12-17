@@ -7,9 +7,9 @@ export class Edition {
   private static counter: number = 0;
   public auctionId?: number;
 
-  constructor(edition: CreateEditionDTO) {
+  constructor(id:number, edition: CreateEditionDTO) {
     this.leagueId = edition.leagueId;
     this.name = edition.name;
-    this.id = edition.id;
+    this.id =id;
   }
 }

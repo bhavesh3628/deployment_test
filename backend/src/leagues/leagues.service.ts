@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {  Injectable } from '@nestjs/common';
 import { CreateLeagueDTO } from './dto/create-league.dto';
 import { UpdateLeagueDTO } from './dto/update-league.dto';
 import { League } from './entities/league.entity';
 import { Edition } from 'src/editions/entities/edition.entity';
-
+import LeaguesRepository from './leagues.repository';
 export interface BackendLeagueService
   extends AddLeagueService,
     EditLeagueService,
@@ -30,46 +30,41 @@ export interface GetAllLeagueService {
 
 @Injectable()
 export class LeagueService implements BackendLeagueService {
-  private leagues: League[] = [];
   private static counter: number = 1;
+  constructor(private readonly leagueRepository:LeaguesRepository){
 
-  async add(league: CreateLeagueDTO) {
-    league.id = LeagueService.counter++;
-    const newLeague: League = new League(league);
-    this.leagues = [...this.leagues, newLeague];
-    return Promise.resolve<League>(newLeague);
+  }
+ 
+  async add(leagueDTO: CreateLeagueDTO) {
+    const id =LeagueService.counter++
+    const newLeague: League = new League(id, leagueDTO);
+    return Promise.resolve<League>(this.leagueRepository.add(newLeague))
   }
 
   async getAll() {
-    return Promise.resolve<League[]>(this.leagues);
+    return await this.leagueRepository.getAll()
   }
 
-  findOne(id: number) {
-    const league = this.leagues.find((league) => league.id === id);
-    if (league) return Promise.resolve<League>(league);
-    throw new Error(`League with id: ${id} does not exist!`);
+  async findOne(id: number) {
+    return await this.leagueRepository.get(id)
   }
 
   async addEdition(edition: Edition): Promise<string> {
-    const league = await this.findOne(edition.leagueId);
+    const league = await this.leagueRepository.get(edition.leagueId);
     league.editions = [...league.editions, edition];
+    const editedLeague = await this.leagueRepository.edit(league)
     return Promise.resolve(
-      `Edition has been added to leagueId ${edition.leagueId}`,
+      `Edition has been added to league ${editedLeague.name}`,
     );
   }
 
   async edit(id: number, updateLeagueDTO: UpdateLeagueDTO) {
     const leagueToEdit = await this.findOne(id);
     leagueToEdit.name = updateLeagueDTO.name;
-    console.log(leagueToEdit);
-    return Promise.resolve(leagueToEdit);
+    return await this.leagueRepository.edit(leagueToEdit)
   }
 
   async delete(id: number): Promise<string> {
-    let league = await this.findOne(id);
-    this.leagues = this.leagues.filter(
-      (currentLeague) => currentLeague.id !== league.id,
-    );
-    return Promise.resolve(`League with id: ${id} deleted`);
+    return await this.leagueRepository.delete(id)
   }
 }

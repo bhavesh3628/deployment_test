@@ -29,7 +29,6 @@ export class EditionsController {
       createEditionDto,
       this.leagueService,
     );
-    this.leagueService.addEdition(addedEdition);
     return addedEdition;
   }
 

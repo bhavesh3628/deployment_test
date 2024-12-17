@@ -26,13 +26,13 @@ export interface GetAllEditionService {
 @Injectable()
 export class EditionService {
   private editions: Edition[] = [];
-  private static counter: number = 0;
+  private static counter: number = 1;
   async create(
     createEditionDTO: CreateEditionDTO,
     leagueService: LeagueService,
   ) {
-    createEditionDTO.id = EditionService.counter++;
-    const newEdition = new Edition(createEditionDTO);
+    let id = EditionService.counter++;
+    const newEdition = new Edition(id,createEditionDTO);
     this.editions = [...this.editions, newEdition];
     leagueService.addEdition(newEdition);
     return Promise.resolve<Edition>(newEdition);

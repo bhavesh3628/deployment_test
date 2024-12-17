@@ -31,8 +31,8 @@ class TestEditionService
     return Promise.resolve(this.editions);
   }
   add(edition: CreateEditionDTO): Promise<Edition> {
-    edition.id = TestEditionService.counter++;
-    const newEdition: Edition = new Edition(edition);
+    const id = TestEditionService.counter++;
+    const newEdition: Edition = new Edition(id, edition);
     this.editions = [...this.editions, newEdition];
     return Promise.resolve<Edition>(newEdition);
   }

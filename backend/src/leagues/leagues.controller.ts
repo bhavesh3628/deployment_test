@@ -21,8 +21,8 @@ export class LeaguesController {
   }
 
   @Get()
-  findAll() {
-    return this.leagueService.getAll();
+  async findAll() {
+    return await this.leagueService.getAll();
   }
 
   @Get(':id')

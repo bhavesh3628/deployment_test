@@ -24,14 +24,13 @@ export class TestLeagueService
   private leagues: League[] = [
     // { id: 1, name: 'ipl', editions: [], createdAt: 'w' },
   ];
-  private static counter: number = 0;
+  private static counter: number = 1;
   getAll(): Promise<League[]> {
     return Promise.resolve(this.leagues);
   }
   add(league: CreateLeagueDTO): Promise<League> {
-    TestLeagueService.counter++;
-    league.id = TestLeagueService.counter;
-    const newLeague: League = new League(league);
+    const id = TestLeagueService.counter++;
+    const newLeague: League = new League(id,league);
     this.leagues = [...this.leagues, newLeague];
     return Promise.resolve<League>(newLeague);
   }

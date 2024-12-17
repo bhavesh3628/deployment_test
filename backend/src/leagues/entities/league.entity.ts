@@ -7,9 +7,9 @@ export class League {
   public editions: Edition[];
   public createdAt: string;
 
-  constructor(league: CreateLeagueDTO) {
+  constructor(id:number, league: CreateLeagueDTO) {
+    this.id=id
     this.name = league.name;
-    this.id = league.id;
     this.editions = [];
     this.createdAt = new Date().toLocaleString();
   }
