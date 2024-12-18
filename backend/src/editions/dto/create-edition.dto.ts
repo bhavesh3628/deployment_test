@@ -1,4 +1,4 @@
 export type CreateEditionDTO = {
-  leagueId: number;
+  leagueId: string;
   name: string;
 };

@@ -1,16 +1,13 @@
-import { Edition } from 'src/editions/entities/edition.entity';
 import { CreateLeagueDTO } from '../dto/create-league.dto';
-
+import { v4 as uuidv4 } from 'uuid';
 export class League {
-  public id: number;
+  public id: string;
   public name: string;
-  public editions: Edition[];
   public createdAt: string;
 
-  constructor(id:number, league: CreateLeagueDTO) {
-    this.id=id
+  constructor(league: CreateLeagueDTO) {
+    this.id = uuidv4();
     this.name = league.name;
-    this.editions = [];
     this.createdAt = new Date().toLocaleString();
   }
 }

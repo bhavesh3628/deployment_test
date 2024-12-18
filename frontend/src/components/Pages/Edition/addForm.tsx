@@ -30,7 +30,7 @@ const formSchema = z.object({
     .string()
     .min(2, { message: "must be at least 2 characters" })
     .max(20, { message: "should be less than 20 characters" }),
-  leagueId: z.string().refine((value) => +value > 0, {
+  leagueId: z.string().refine((value) => value !== '', {
     message: "League must be selected..",
   }),
 });
@@ -44,14 +44,14 @@ const AddEditionForm = ({ handleAddEdition }: AddEditionProps) => {
   const [edition, setEdition] = useState<Edition>({
     name: "",
     id: 0,
-    leagueId: 0,
+    leagueId: '',
   });
   // let leagues: League[];
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: edition.name,
-      leagueId: "0",
+      leagueId: "",
     },
   });
 
@@ -72,7 +72,7 @@ const AddEditionForm = ({ handleAddEdition }: AddEditionProps) => {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const newEditionDTO: CreateEditionDTO = {
       name: values.name,
-      leagueId: +values.leagueId,
+      leagueId: values.leagueId,
     };
     console.log(newEditionDTO);
     const newEdition = await editionService.addOne(newEditionDTO);

@@ -50,7 +50,7 @@ export class RestEditionService implements EditionService {
 }
 
 export class LocallyStoredEditionService implements EditionService {
-  async getAll(leagueId?: number) {
+  async getAll(leagueId?: string) {
     let editions = JSON.parse(localStorage.getItem("editions")!);
     if (editions) {
       if (leagueId) {
@@ -114,7 +114,7 @@ export class LocallyStoredEditionService implements EditionService {
 }
 
 export class Edition {
-  public readonly leagueId: number;
+  public readonly leagueId: string;
   public name: string;
   public readonly id: number;
   private static counter: number = 0;

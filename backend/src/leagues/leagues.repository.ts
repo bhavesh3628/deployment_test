@@ -3,7 +3,6 @@ import { SQLITE_CONNECTION } from 'src/database/config';
 import { Inject } from '@nestjs/common';
 
 export class LeaguesRepository {
-  private leagues: League[] = [];
   constructor(@Inject(SQLITE_CONNECTION) private connection) {
     // add interface
     // connection.exec(`    created_at TEXT NOT NULL DEFAULT current_timestamp,`);
@@ -11,43 +10,74 @@ export class LeaguesRepository {
 
   async getAll() {
     let leaguesPromise = await new Promise<League[]>((resolve, reject) => {
-      this.connection.all('select * from leagues;', async (err, rows) => {
-        let leagues: League[] = [];
-        await rows.forEach(async (row) => {
-          let league: League = {
-            name: row.name,
-            id: row.id,
-            editions: [],
-            createdAt: '123',
-          };
-          leagues = [...leagues, league];
-        });
-        resolve(leagues);
-      });
+      this.connection.all(
+        'select * from leagues where deletedAt is null;',
+        async (err, rows) => {
+          let leagues: League[] = [];
+          await rows.forEach(async (row) => {
+            let league: League = {
+              name: row.name,
+              id: row.id,
+              createdAt: row.createdAt,
+            };
+            leagues = [...leagues, league];
+            // console.log('single row: ', row);
+          });
+          resolve(leagues);
+        },
+      );
     });
 
     return leaguesPromise;
   }
 
   async add(league: League) {
-    this.leagues = [...this.leagues, league];
-    return Promise.resolve<League>(league);
+    const insert = this.connection.prepare(
+      'INSERT INTO leagues (id,name) VALUES (?,?)',
+    );
+    let addLeaguePromise = await new Promise<League>((resolve, reject) => {
+      insert.run(league.id, league.name, (err) => {
+        console.log('error while adding', err);
+      });
+      resolve(league);
+    });
+    return addLeaguePromise;
   }
 
   async edit(league: League) {
-    let updatedLeague = await this.get(league.id);
-    updatedLeague = league;
-    return Promise.resolve<League>(updatedLeague);
+    const updatePromise = new Promise<League>((resolve, reject) => {
+      this.connection.exec(
+        `update leagues SET name = '${league.name}' where id = '${league.id}';`,
+        (err) => {
+          if (err) console.log(err);
+        },
+        resolve(league),
+      );
+    });
+    return updatePromise;
   }
 
-  async delete(id: number) {
-    await this.get(id);
-    this.leagues = this.leagues.filter((league) => league.id !== id);
+  async delete(id: string) {
+    this.connection.exec(
+      `update leagues SET deletedAt = CURRENT_TIMESTAMP, 
+        name = CURRENT_TIMESTAMP || ' ' || (select name from leagues where id = '${id}') 
+        where id = '${id}';
+        
+        update editions SET deletedAt = CURRENT_TIMESTAMP,
+         name = CURRENT_TIMESTAMP || ' ' || (select name from editions where leagueId = '${id}') 
+        where leagueId = '${id}'  
+        `,
+
+      (err) => {
+        if (err) console.log(err);
+      },
+    );
+
     return Promise.resolve(`League with id: ${id} deleted`);
   }
 
-  async get(id: number) {
-    let league = await this.leagues.find(
+  async get(id: string) {
+    let league = (await this.getAll()).find(
       (currentLeague) => currentLeague.id === id,
     );
     if (!league) throw new Error('League not found');

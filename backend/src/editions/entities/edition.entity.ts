@@ -1,15 +1,14 @@
 import { CreateEditionDTO } from '../dto/create-edition.dto';
-
+import { v4 as uuidv4 } from 'uuid';
 export class Edition {
-  public readonly leagueId: number;
+  public readonly leagueId: string;
   public name: string;
-  public readonly id: number;
-  private static counter: number = 0;
+  public readonly id: string;
   public auctionId?: number;
 
-  constructor(id:number, edition: CreateEditionDTO) {
+  constructor(edition: CreateEditionDTO) {
     this.leagueId = edition.leagueId;
     this.name = edition.name;
-    this.id =id;
+    this.id = uuidv4();
   }
 }

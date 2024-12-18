@@ -27,16 +27,16 @@ export class LeaguesController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.leagueService.findOne(+id);
+    return this.leagueService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateLeagueDTO: UpdateLeagueDTO) {
-    return this.leagueService.edit(+id, updateLeagueDTO);
+    return this.leagueService.edit(id, updateLeagueDTO);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.leagueService.delete(+id);
+    return this.leagueService.delete(id);
   }
 }
