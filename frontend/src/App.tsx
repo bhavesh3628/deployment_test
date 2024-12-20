@@ -7,6 +7,7 @@ import { Home } from "./components/Pages/Home";
 import EditionComponent from "./components/Pages/edition/Edition.js";
 import { AuctionProvider } from "./components/Pages/AuctionProvider.js";
 import FranchiseComponent from "./components/Pages/franchise/Franchise.js";
+import PlayerComponent from "./components/Pages/player/Player.js";
 
 function App() {
   return (
@@ -20,7 +21,7 @@ function App() {
             <Route path="/league" element={<LeagueComponent />} />
             <Route path="/edition" element={<EditionComponent />} />
             <Route path="/franchise" element={<FranchiseComponent />} />
-            <Route path="/players" element={<LeagueComponent />} />
+            <Route path="/player" element={<PlayerComponent />} />
           </Routes>
         </Router>
       </SidebarProvider>
