@@ -14,15 +14,17 @@ class LeaguesRepository {
         'select * from leagues where deletedAt is null;',
         async (err, rows) => {
           let leagues: League[] = [];
-          await rows.forEach(async (row) => {
+          await rows.forEach((row) => {
             let league: League = {
               name: row.name,
               id: row.id,
               createdAt: row.createdAt,
             };
+            console.log('1', league);
             leagues = [...leagues, league];
-            // console.log('single row: ', row);
+            console.log('2', leagues);
           });
+          console.log('3', leagues);
           resolve(leagues);
         },
       );

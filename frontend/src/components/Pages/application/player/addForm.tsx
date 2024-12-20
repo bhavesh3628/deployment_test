@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "../../../ui/input";
 import { Button } from "../../../ui/button";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { PlayerApplication } from "./application.service.js";
 import { usePlayerApplications } from "../../AuctionProvider";
 import { CreatePlayerApplicationDTO } from "./types";

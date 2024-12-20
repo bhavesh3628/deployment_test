@@ -40,25 +40,22 @@ function createDatabase() {
 
 function createTables(db: sqlite3.Database) {
   console.log('inside create table');
-  fs.readFile(
-    'D:/Desktop/Cohort/rdc-auction-one-on-one/rdc2-auction/backend/src/database/tables.sql',
-    (err, data) => {
-      // console.log(data.toString());
-      let queries = data.toString().split(';');
-      queries.forEach((query) => {
-        db.exec(query, (err) => {
-          if (err && err['errno'] === 19) {
-            console.log('Name already exists', query);
-          } else {
-            console.log('Getting error inside create tables ' + err);
-          }
-        });
+  fs.readFile('./src/database/tables.sql', (err, data) => {
+    // console.log(data.toString());
+    let queries = data.toString().split(';');
+    queries.forEach((query) => {
+      db.exec(query, (err) => {
+        if (err && err['errno'] === 19) {
+          console.log('Name already exists', query);
+        } else {
+          console.log('Getting error inside create tables ' + err);
+        }
       });
-      if (err) {
-        console.log('getting error from fs readfile', err);
-      }
-    },
-  );
+    });
+    if (err) {
+      console.log('getting error from fs readfile', err);
+    }
+  });
 }
 
 const dbProvider = {
