@@ -41,11 +41,12 @@ function createDatabase() {
 function createTables(db: sqlite3.Database) {
   console.log('inside create table');
   fs.readFile(
-    '/Users/hassan/Documents/Workspace/rdc/rdc2-auction/backend/src/database/tables.sql',
+    'C:/Users/ishaa/Documents/GitHub/rdc2-auction/backend/src/database/tables.sql',
     (err, data) => {
-      // console.log(data.toString());
+      console.log(data.toString());
       let queries = data.toString().split(';');
       queries.forEach((query) => {
+        console.log(queries);
         db.exec(query, (err) => {
           if (err && err['errno'] === 19) {
             console.log('Name already exists', query);
