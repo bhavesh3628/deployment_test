@@ -1,14 +1,18 @@
 import { createContext, useContext } from "react";
-import leagueService, { LeagueService } from "./league/league.service";
-import editionService, { EditionService } from "./edition/edition.service";
+import leagueService, { LeagueService } from "./League/league.service";
+import editionService, { EditionService } from "./Edition/edition.service";
 import franchiseService, {
   FranchiseService,
 } from "./franchise/franchise.service";
+import playerApplicationService, {
+  PlayerApplicationService,
+} from "./application/player/application.service.js";
 
 interface AuctionContextInterface {
   leagueService?: LeagueService;
   editionService?: EditionService;
   franchiseService?: FranchiseService;
+  playerApplicationService?: PlayerApplicationService;
 }
 export const AuctionContext = createContext<AuctionContextInterface | null>(
   null
@@ -18,6 +22,7 @@ const defaultValue = {
   leagueService,
   editionService,
   franchiseService,
+  playerApplicationService,
 };
 
 type AuctionProviderType = {
@@ -59,4 +64,13 @@ export const useFranchises = () => {
   ) as AuctionContextInterface;
   if (!franchiseService) throw new Error("Franchise Context not found");
   return { franchiseService };
+};
+
+export const usePlayerApplications = () => {
+  const { playerApplicationService } = useContext(
+    AuctionContext
+  ) as AuctionContextInterface;
+  if (!playerApplicationService)
+    throw new Error("PlayerApplication Context not found");
+  return { playerApplicationService };
 };

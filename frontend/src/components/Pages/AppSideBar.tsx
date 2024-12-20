@@ -1,13 +1,4 @@
-import {
-  Calendar,
-  Flag,
-  Home,
-  Inbox,
-  PersonStandingIcon,
-  Search,
-  Settings,
-  Trophy,
-} from "lucide-react";
+import { Calendar, Flag, Home, PersonStandingIcon, Trophy } from "lucide-react";
 
 import {
   Sidebar,
@@ -15,7 +6,6 @@ import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
-  SidebarInset,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -47,6 +37,11 @@ const items = [
     title: "Player",
     url: "/player",
     icon: PersonStandingIcon,
+  },
+  {
+    title: "Player Application",
+    url: "/playerApplications",
+    icon: Calendar,
   },
 ];
 

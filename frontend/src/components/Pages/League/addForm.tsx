@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "../../ui/input.js";
 import { Button } from "../../ui/button.js";
-import { CreateLeagueDTO } from "./types.js";
+import { CreateLeagueDTO } from "./types";
 import { useLeagues } from "../AuctionProvider.js";
 
 const formSchema = z.object({

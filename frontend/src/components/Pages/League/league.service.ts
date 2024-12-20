@@ -1,4 +1,4 @@
-import { Edition } from "../edition/edition.service";
+import { Edition } from "../Edition/edition.service";
 import { CreateLeagueDTO, UpdateLeagueDTO } from "./types";
 import axios from "axios";
 export interface LeagueService
