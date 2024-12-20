@@ -41,7 +41,7 @@ function createDatabase() {
 function createTables(db: sqlite3.Database) {
   console.log('inside create table');
   fs.readFile(
-    '/Users/hassan/Documents/Workspace/rdc/rdc2-auction/backend/src/database/tables.sql',
+    'D:/Desktop/Cohort/rdc-auction-one-on-one/rdc2-auction/backend/src/database/tables.sql',
     (err, data) => {
       // console.log(data.toString());
       let queries = data.toString().split(';');

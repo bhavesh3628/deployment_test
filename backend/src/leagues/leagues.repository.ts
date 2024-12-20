@@ -2,7 +2,7 @@ import { League } from './entities/league.entity';
 import { SQLITE_CONNECTION } from 'src/database/config';
 import { Inject } from '@nestjs/common';
 
-export class LeaguesRepository {
+class LeaguesRepository {
   constructor(@Inject(SQLITE_CONNECTION) private connection) {
     // add interface
     // connection.exec(`    created_at TEXT NOT NULL DEFAULT current_timestamp,`);
