@@ -6,6 +6,7 @@ import {
   EditPlayerApplicationDTO,
   Status,
 } from "./types.js";
+import { v4 as uuidv4 } from "uuid";
 
 //PlayerService reference Has been removed.
 // AuctionService has no use currently.
@@ -24,12 +25,12 @@ export interface AddOnePlayerApplicationService {
 }
 export interface EditOnePlayerApplicationService {
   editOne(
-    applicationId: number,
+    applicationId: string,
     editApplicationDTO: EditPlayerApplicationDTO
   ): Promise<PlayerApplication>;
 }
 export interface DeleteOnePlayerApplicationService {
-  deleteOne(applicationId: number): Promise<void>;
+  deleteOne(applicationId: string): Promise<void>;
 }
 
 export class RestPlayerApplicationService implements PlayerApplicationService {
@@ -51,7 +52,7 @@ export class RestPlayerApplicationService implements PlayerApplicationService {
   }
 
   async editOne(
-    applicationId: number,
+    applicationId: string,
     editApplicationDTO: EditPlayerApplicationDTO
   ): Promise<PlayerApplication> {
     const editedApplication: PlayerApplication = await axios.patch(
@@ -62,7 +63,7 @@ export class RestPlayerApplicationService implements PlayerApplicationService {
     return Promise.resolve(editedApplication);
   }
 
-  async deleteOne(applicationId: number): Promise<void> {
+  async deleteOne(applicationId: string): Promise<void> {
     await axios.delete(
       `http://localhost:3000/playerApplications/${applicationId}`
     );
@@ -95,7 +96,7 @@ export class LocallyStoredPlayerApplicationService
   }
 
   async editOne(
-    applicationId: number,
+    applicationId: string,
     editApplicationDTO: EditPlayerApplicationDTO
   ) {
     const applications = await this.getAll();
@@ -113,7 +114,7 @@ export class LocallyStoredPlayerApplicationService
     return Promise.reject("Application not found to edit");
   }
 
-  async deleteOne(applicationId: number) {
+  async deleteOne(applicationId: string) {
     const applications = await this.getAll();
     localStorage.setItem(
       "playerApplications",
@@ -150,17 +151,17 @@ export class LocallyStoredPlayerApplicationService
 }
 
 export class PlayerApplication {
-  private static counter: number = 0;
-  public readonly id: number;
-  public readonly playerId: number;
+  // private static counter: number = 0;
+  public readonly id: string;
+  public readonly playerId: string;
   public readonly auctionId: string;
   public status: Status;
   public roundBasePrice: { [key: number]: number };
   public applicationMeta?: PlayerApplicationMeta;
 
   constructor(application: CreatePlayerApplicationDTO) {
-    PlayerApplication.counter++;
-    this.id = PlayerApplication.counter;
+    // PlayerApplication.counter++;
+    this.id = uuidv4();
     this.auctionId = application.auctionId;
     this.playerId = application.playerId;
     this.status = "pending";

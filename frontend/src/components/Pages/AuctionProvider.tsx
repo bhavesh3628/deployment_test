@@ -4,6 +4,7 @@ import editionService, { EditionService } from "./Edition/edition.service";
 import franchiseService, {
   FranchiseService,
 } from "./franchise/franchise.service";
+import playerService, { PlayerService } from "./player/player.service";
 import playerApplicationService, {
   PlayerApplicationService,
 } from "./application/player/application.service.js";
@@ -12,6 +13,7 @@ interface AuctionContextInterface {
   leagueService?: LeagueService;
   editionService?: EditionService;
   franchiseService?: FranchiseService;
+  playerService?: PlayerService;
   playerApplicationService?: PlayerApplicationService;
 }
 export const AuctionContext = createContext<AuctionContextInterface | null>(
@@ -22,6 +24,7 @@ const defaultValue = {
   leagueService,
   editionService,
   franchiseService,
+  playerService,
   playerApplicationService,
 };
 
@@ -66,6 +69,7 @@ export const useFranchises = () => {
   return { franchiseService };
 };
 
+//player application custom hook
 export const usePlayerApplications = () => {
   const { playerApplicationService } = useContext(
     AuctionContext
@@ -73,4 +77,13 @@ export const usePlayerApplications = () => {
   if (!playerApplicationService)
     throw new Error("PlayerApplication Context not found");
   return { playerApplicationService };
+};
+
+// player custom hooks
+export const usePlayers = () => {
+  const { playerService } = useContext(
+    AuctionContext
+  ) as AuctionContextInterface;
+  if (!playerService) throw new Error("Player Context not found");
+  return { playerService };
 };

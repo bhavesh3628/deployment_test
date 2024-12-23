@@ -23,7 +23,9 @@ PRAGMA foreign_keys = ON;
       submittedAt text DEFAULT CURRENT_TIMESTAMP,
       deletedAt text DEFAULT null,
       roundBasePrice text not null,
-      status text CHECK( status IN ('pending','accepted','rejected'))not null DEFAULT 'pending'
+      status text CHECK( status IN ('pending','accepted','rejected'))not null DEFAULT 'pending',
+       FOREIGN KEY (playerId) REFERENCES players(id) on delete cascade,
+       constraint uniqueAuctionPlayerId unique (auctionId,playerId)
     );
 
     

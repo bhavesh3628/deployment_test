@@ -55,11 +55,6 @@ export class PlayerApplicationRepository {
 
   async edit(application: PlayerApplication) {
     const updatePromise = new Promise<PlayerApplication>((resolve, reject) => {
-      /*public readonly id: string;
-  public readonly playerId: string;
-  public readonly auctionId: string;
-  public status: Status;
-  public roundBasePrice: { [key: number]: number };*/
       this.connection.exec(
         `update PlayerApplications SET roundBasePrice = ${application.roundBasePrice} where id = ${application.id}`,
         (error) => {

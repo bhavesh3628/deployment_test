@@ -39,8 +39,8 @@ const items = [
     icon: PersonStandingIcon,
   },
   {
-    title: "Player Application",
-    url: "/playerApplications",
+    title: "Player Application List",
+    url: "/playerApplicationList",
     icon: Calendar,
   },
 ];

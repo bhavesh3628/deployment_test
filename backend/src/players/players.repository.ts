@@ -79,8 +79,10 @@ export class PlayersRepository {
     this.connection.exec(
       `update players SET deletedAt = CURRENT_TIMESTAMP, 
         name = CURRENT_TIMESTAMP || ' ' || (select name from players where id = '${id}') 
-        where id = '${id}';`,
-
+        where id = '${id}';
+        
+        update PlayerApplications SET deletedAt = CURRENT_TIMESTAMP where playerId = '${id}';`,
+      // soft delete for registered player applications is remaining
       (err) => {
         if (err) console.log(err);
       },

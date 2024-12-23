@@ -1,7 +1,7 @@
 export type Status = "accepted" | "rejected" | "pending";
 export type RoundBasePrice = { [key: number]: number };
 export type CreatePlayerApplicationDTO = {
-  playerId: number;
+  playerId: string;
   auctionId: string;
   roundBasePrice: RoundBasePrice;
 };

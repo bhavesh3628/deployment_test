@@ -7,7 +7,8 @@ import { Home } from "./components/Pages/Home";
 import EditionComponent from "./components/Pages/Edition/edition";
 import { AuctionProvider } from "./components/Pages/AuctionProvider.js";
 import FranchiseComponent from "./components/Pages/franchise/Franchise.js";
-import PlayerApplicationComponent from "./components/Pages/application/player/Player.js";
+import PlayerComponent from "./components/Pages/player/Player.js";
+import PlayerApplicationList from "./components/Pages/application/player/applicationList.js";
 
 function App() {
   return (
@@ -21,10 +22,10 @@ function App() {
             <Route path="/league" element={<LeagueComponent />} />
             <Route path="/edition" element={<EditionComponent />} />
             <Route path="/franchise" element={<FranchiseComponent />} />
-            <Route path="/players" element={<LeagueComponent />} />
+            <Route path="/player" element={<PlayerComponent />} />
             <Route
-              path="/playerApplications/:id"
-              element={<PlayerApplicationComponent />}
+              path="/playerApplicationList"
+              element={<PlayerApplicationList />}
             />
           </Routes>
         </Router>
