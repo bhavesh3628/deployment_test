@@ -1,0 +1,55 @@
+name: CI/CD for Node.js Application
+
+on:
+  push:
+    branches:
+      - main
+      - "feature/*"
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm run test
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build the project
+        run: npm run build
+
+      - name: Deploy to AWS S3
+        run: aws s3 sync ./dist/ s3://bhavesh-bucket-1 --delete
+        env:
+          AWS_ACCESS_KEY_ID: AKIA3CRG2BHB5BI5ZR7I
+          AWS_SECRET_ACCESS_KEY: VdEMBuogXh+G35L0YQyyKJa+wTEkhBh5j44XAcj
+          AWS_DEFAULT_REGION: "eu-north-1"
