@@ -20,7 +20,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "16"
+          node-version: "18"
 
       - name: Install dependencies
         run: npm install
@@ -39,7 +39,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "16"
+          node-version: "18"
 
       - name: Install dependencies
         run: npm install
@@ -47,9 +47,13 @@ jobs:
       - name: Build the project
         run: npm run build
 
-      - name: Deploy to AWS S3
-        run: aws s3 sync ./dist/ s3://bhavesh-bucket-1 --delete
+      - name: Deploy to S3
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --acl public-read --follow-symlinks --delete
         env:
-          AWS_ACCESS_KEY_ID: AKIA3CRG2BHB5BI5ZR7I
-          AWS_SECRET_ACCESS_KEY: VdEMBuogXh+G35L0YQyyKJa+wTEkhBh5j44XAcj
-          AWS_DEFAULT_REGION: "eu-north-1"
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          SOURCE_DIR: "dist"
